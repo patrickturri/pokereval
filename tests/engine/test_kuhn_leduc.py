@@ -24,3 +24,28 @@ def test_leduc_has_more_decision_nodes_than_kuhn():
 def test_normalize_pass_depends_on_facing_bet():
     assert normalize_os_action("Pass", facing_bet=False) is Action.CHECK
     assert normalize_os_action("Pass", facing_bet=True) is Action.FOLD
+
+
+def test_kuhn_facing_bet_determines_os_legal_keys():
+    """Regression: Kuhn nodes facing a bet must expose fold/call, not check/bet.
+
+    In Kuhn poker OpenSpiel always surfaces 'Pass' and 'Bet' regardless of
+    context, so facing_bet must be derived from the betting history (not from
+    label text).  This test pins the expected action-key sets per facing_bet
+    value for every Kuhn decision node.
+    """
+    nodes = list(iter_nodes(GameVariant.KUHN))
+    assert nodes, "iter_nodes(KUHN) returned no nodes"
+
+    for node in nodes:
+        keys = set(node.os_legal.keys())
+        if node.facing_bet:
+            assert keys == {"fold", "call"}, (
+                f"Node {node.info_key!r} has facing_bet=True but os_legal keys={keys!r}; "
+                "expected {'fold', 'call'}"
+            )
+        else:
+            assert keys == {"check", "bet"}, (
+                f"Node {node.info_key!r} has facing_bet=False but os_legal keys={keys!r}; "
+                "expected {'check', 'bet'}"
+            )

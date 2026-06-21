@@ -55,7 +55,7 @@ def normalize_os_action(action_string: str, facing_bet: bool) -> Action:
 class NodeInfo:
     info_key: str
     player: int
-    os_legal: dict  # action value (str) -> OpenSpiel action id (int)
+    os_legal: dict[str, int]  # action value (str) -> OpenSpiel action id (int)
     facing_bet: bool
     os_state: "pyspiel.State"
 
@@ -68,28 +68,37 @@ def iter_nodes(variant: GameVariant):
     """
     game = load_game(variant)
 
-    def _walk(state):
+    def _walk(state, pending_bet: bool = False):
         if state.is_terminal():
             return
         if state.is_chance_node():
+            # A new betting round starts after a chance node; no pending bet.
             for action, _prob in state.chance_outcomes():
-                yield from _walk(state.child(action))
+                yield from _walk(state.child(action), pending_bet=False)
             return
         player = state.current_player()
         info_key = state.information_state_string(player)
-        labels = {a: state.action_to_string(player, a) for a in state.legal_actions()}
-        # facing_bet: a 'Fold' option (Leduc) or the Pass+Bet combo after a bet (Kuhn)
-        # means there is a pending bet.  We detect this by checking if 'fold' or
-        # 'pass' appears alongside a 'bet'/'call'/'raise' — simplest proxy: Fold present.
-        raw_labels = {s.strip().lower() for s in labels.values()}
-        facing_bet = "fold" in raw_labels
-        os_legal: dict = {}
+        labels: dict[str, int] = {
+            a: state.action_to_string(player, a) for a in state.legal_actions()
+        }
+        # facing_bet is threaded through the recursion so it is correct for all
+        # variants.  In Kuhn, OpenSpiel only exposes 'Pass'/'Bet' at every node,
+        # so label-based detection never fires; the recursive parameter is the
+        # only reliable source.  In Leduc, 'Fold' appears iff there is a pending
+        # bet, which agrees with the recursive parameter.
+        facing_bet = pending_bet
+        os_legal: dict[str, int] = {}
         for a, label in labels.items():
             act = normalize_os_action(label, facing_bet)
             os_legal[act.value] = a
         yield NodeInfo(info_key, player, os_legal, facing_bet, state)
-        for a in state.legal_actions():
-            yield from _walk(state.child(a))
+        for a, label in labels.items():
+            raw = label.strip().lower()
+            # A bet-opening action ('bet' or 'raise') creates a pending bet for
+            # the next player; all other actions (pass/check/call/fold) either
+            # answer or ignore the bet.
+            child_pending = raw in ("bet", "raise")
+            yield from _walk(state.child(a), pending_bet=child_pending)
 
     seen: set = set()
     for node in _walk(game.new_initial_state()):

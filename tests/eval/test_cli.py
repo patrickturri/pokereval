@@ -1,3 +1,8 @@
+import subprocess
+import sys
+
+import pytest
+
 from pokereval.interface.types import GameVariant, Action, State
 from pokereval.models.client import FakeClient
 from pokereval.graders.verifiable import VerifiableGrader
@@ -21,3 +26,22 @@ def test_main_runs_holdem_endtoend(capsys):
     assert code == 0
     out = capsys.readouterr().out
     assert "| Model |" in out
+
+
+@pytest.mark.openspiel
+def test_cli_stdout_has_no_openspiel_import_noise():
+    """OpenSpiel's C++ game registry prints an 'Optional module ... not
+    importable' line to stdout at import time. The leaderboard must be clean
+    so the output is parseable and copy-pasteable. Run in a subprocess because
+    the noisy import is cached after the first import within a process."""
+    pytest.importorskip("pyspiel")
+    proc = subprocess.run(
+        [sys.executable, "-m", "pokereval.cli", "run", "--variant", "leduc",
+         "--iterations", "50"],
+        capture_output=True,
+        text=True,
+    )
+    assert proc.returncode == 0, proc.stderr
+    assert "not importable" not in proc.stdout
+    assert "pokerkit_wrapper" not in proc.stdout
+    assert "| Model |" in proc.stdout

@@ -17,10 +17,41 @@ exploitability_of_choices(variant, choices) -> float
 
 from __future__ import annotations
 
+import contextlib
+import os
+import sys
+
 import pyspiel
-from open_spiel.python.algorithms import cfr
-from open_spiel.python.algorithms import exploitability as _exploitability_module
-from open_spiel.python import policy as os_policy
+
+
+@contextlib.contextmanager
+def _suppress_native_stdout():
+    """Silence C/C++-level writes to stdout (file descriptor 1).
+
+    OpenSpiel's ``open_spiel.python.algorithms`` package eagerly imports its
+    Python game registry, which prints lines like
+    ``Optional module pokerkit_wrapper was not importable: ...`` directly to
+    stdout from native code. A plain ``contextlib.redirect_stdout`` cannot catch
+    that because it only rebinds ``sys.stdout`` in Python; we must redirect the
+    underlying file descriptor.
+    """
+    saved_fd = os.dup(1)
+    devnull_fd = os.open(os.devnull, os.O_WRONLY)
+    try:
+        sys.stdout.flush()
+        os.dup2(devnull_fd, 1)
+        yield
+    finally:
+        sys.stdout.flush()
+        os.dup2(saved_fd, 1)
+        os.close(devnull_fd)
+        os.close(saved_fd)
+
+
+with _suppress_native_stdout():
+    from open_spiel.python.algorithms import cfr
+    from open_spiel.python.algorithms import exploitability as _exploitability_module
+    from open_spiel.python import policy as os_policy
 
 from pokereval.interface.types import GameVariant
 from pokereval.engine.kuhn_leduc import load_game, iter_nodes

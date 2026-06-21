@@ -92,3 +92,18 @@ def test_main_accepts_provider_and_model_flags(capsys):
     ])
     assert code == 0
     assert "| Model |" in capsys.readouterr().out
+
+
+def test_main_json_format_emits_valid_json(capsys):
+    import json
+    code = main([
+        "run", "--variant", "holdem",
+        "--holdem-path", "data/holdem_spots.jsonl",
+        "--provider", "fake", "--format", "json",
+    ])
+    assert code == 0
+    out = capsys.readouterr().out
+    data = json.loads(out)  # raises if not valid JSON
+    assert isinstance(data, list)
+    assert data[0]["model"] == "fake-fold"
+    assert "mean_verifiable" in data[0]

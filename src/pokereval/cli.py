@@ -99,6 +99,12 @@ def main(argv: list[str] | None = None) -> int:
         default="claude-opus-4-8",
         help="Judge model id (default: claude-opus-4-8).",
     )
+    run.add_argument(
+        "--format",
+        choices=["markdown", "json"],
+        default="markdown",
+        help="Output format. 'json' emits the raw summaries for archival.",
+    )
     args = parser.parse_args(argv)
 
     variant = GameVariant(args.variant)
@@ -116,7 +122,12 @@ def main(argv: list[str] | None = None) -> int:
         judge = JudgeGrader(judge_client)
 
     summary = run_for_client(client, spotset, verifiable, judge)
-    print(render_markdown([summary]))
+    if args.format == "json":
+        import json
+
+        print(json.dumps([summary.model_dump() for summary in [summary]], indent=2))
+    else:
+        print(render_markdown([summary]))
     return 0
 
 

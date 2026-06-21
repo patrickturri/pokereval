@@ -9,8 +9,33 @@ A poker testbed for frontier-model research engineering.
 
 ## Status
 
-🚧 Early development. Design spec:
-[`docs/superpowers/specs/2026-06-20-poker-llm-research-eng-design.md`](docs/superpowers/specs/2026-06-20-poker-llm-research-eng-design.md)
+🚧 Phase 1 (environment + eval suite) is implemented and reproducible.
+Design spec:
+[`docs/superpowers/specs/2026-06-20-poker-llm-research-eng-design.md`](docs/superpowers/specs/2026-06-20-poker-llm-research-eng-design.md) ·
+Phase 1 methodology + findings:
+[`docs/phase1-findings.md`](docs/phase1-findings.md)
+
+## Quickstart
+
+```bash
+make install          # editable install (OpenSpiel + model SDKs)
+make test             # full test suite
+make leaderboard      # credential-free baseline leaderboard, all variants
+```
+
+Run a real frontier model (needs `ANTHROPIC_API_KEY`):
+
+```bash
+make leaderboard PROVIDER=anthropic MODEL=claude-opus-4-8
+# or per-variant, with the reasoning judge and JSON output for archival:
+python -m pokereval.cli run --variant leduc --provider anthropic \
+  --model claude-opus-4-8 --judge --format json
+```
+
+The leaderboard reports, per model: mean Nash-probability mass, exact-match
+rate, whole-policy **exploitability** (the headline metric — chips/hand a
+best-responder extracts; 0 = Nash), an optional LLM-judge reasoning score, and
+parse-error rate.
 
 ## Phases
 

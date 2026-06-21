@@ -37,6 +37,18 @@ rate, whole-policy **exploitability** (the headline metric — chips/hand a
 best-responder extracts; 0 = Nash), an optional LLM-judge reasoning score, and
 parse-error rate.
 
+### Synthetic data (Phase 2, in progress)
+
+Generate CFR/Nash-labeled spots tagged by failure mode (the spots where
+frontier models are predicted to deviate — mixed strategies, facing-a-bet
+decisions). These double as verifiable-reward RLVR training data and a targeted
+eval set:
+
+```bash
+make synth VARIANT=kuhn TAG=mixed OUT=data/kuhn_mixed.jsonl
+# or: python -m pokereval.cli synth --variant leduc --out data/leduc_synth.jsonl
+```
+
 ## Phases
 
 1. **Environment + Eval suite** — poker engine wrapper, graders (verifiable +

@@ -34,6 +34,15 @@ leaderboard-json:
 	python -m pokereval.cli run --variant $(VARIANT) --iterations $(ITERATIONS) \
 		--provider $(PROVIDER) $(MODEL_FLAG) --format json
 
+# Generate CFR/Nash-labeled synthetic spots (Phase 2 flywheel).
+# e.g. make synth VARIANT=leduc TAG=mixed OUT=data/leduc_mixed.jsonl
+TAG ?=
+OUT ?= data/$(VARIANT)_synth.jsonl
+TAG_FLAG := $(if $(TAG),--tag $(TAG),)
+synth:
+	python -m pokereval.cli synth --variant $(VARIANT) --iterations $(ITERATIONS) \
+		--out $(OUT) $(TAG_FLAG)
+
 clean:
 	find . -type d -name __pycache__ -prune -exec rm -rf {} +
 	rm -rf .pytest_cache

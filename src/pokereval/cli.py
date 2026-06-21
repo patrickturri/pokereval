@@ -105,8 +105,26 @@ def main(argv: list[str] | None = None) -> int:
         default="markdown",
         help="Output format. 'json' emits the raw summaries for archival.",
     )
-    args = parser.parse_args(argv)
 
+    synth = sub.add_parser(
+        "synth", help="Generate CFR/Nash-labeled synthetic spots (Kuhn/Leduc)."
+    )
+    synth.add_argument("--variant", choices=["kuhn", "leduc"], required=True)
+    synth.add_argument("--iterations", type=int, default=2000)
+    synth.add_argument("--out", required=True, help="Output .jsonl path.")
+    synth.add_argument(
+        "--tag",
+        default=None,
+        help="Only emit spots carrying this failure-mode tag (e.g. 'mixed').",
+    )
+
+    args = parser.parse_args(argv)
+    if args.cmd == "synth":
+        return _cmd_synth(args)
+    return _cmd_run(args, parser)
+
+
+def _cmd_run(args, parser) -> int:
     variant = GameVariant(args.variant)
     spotset = build_spotset(variant, args.holdem_path, args.iterations)
     verifiable = VerifiableGrader(spotset.nash_probs)
@@ -125,9 +143,27 @@ def main(argv: list[str] | None = None) -> int:
     if args.format == "json":
         import json
 
-        print(json.dumps([summary.model_dump() for summary in [summary]], indent=2))
+        print(json.dumps([summary.model_dump()], indent=2))
     else:
         print(render_markdown([summary]))
+    return 0
+
+
+def _cmd_synth(args) -> int:
+    import json
+    from pathlib import Path
+    from .synth.generator import build_labeled_spots, select_by_tag, to_jsonl_records
+
+    variant = GameVariant(args.variant)
+    spots = build_labeled_spots(variant, args.iterations)
+    if args.tag:
+        spots = select_by_tag(spots, args.tag)
+    records = to_jsonl_records(spots)
+
+    out = Path(args.out)
+    out.parent.mkdir(parents=True, exist_ok=True)
+    out.write_text("\n".join(json.dumps(r) for r in records) + "\n")
+    print(f"Wrote {len(records)} labeled spots to {out}")
     return 0
 
 

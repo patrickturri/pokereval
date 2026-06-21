@@ -107,3 +107,31 @@ def test_main_json_format_emits_valid_json(capsys):
     assert isinstance(data, list)
     assert data[0]["model"] == "fake-fold"
     assert "mean_verifiable" in data[0]
+
+
+@pytest.mark.openspiel
+def test_main_synth_writes_jsonl(tmp_path):
+    import json
+    pytest.importorskip("pyspiel")
+    out = tmp_path / "kuhn_synth.jsonl"
+    code = main(["synth", "--variant", "kuhn", "--iterations", "500",
+                 "--out", str(out)])
+    assert code == 0
+    lines = [l for l in out.read_text().splitlines() if l.strip()]
+    assert lines
+    rec = json.loads(lines[0])
+    assert "nash_action_probs" in rec and "tags" in rec and "state" in rec
+
+
+@pytest.mark.openspiel
+def test_main_synth_tag_filter(tmp_path):
+    import json
+    pytest.importorskip("pyspiel")
+    out = tmp_path / "mixed.jsonl"
+    code = main(["synth", "--variant", "kuhn", "--iterations", "2000",
+                 "--out", str(out), "--tag", "mixed"])
+    assert code == 0
+    lines = [l for l in out.read_text().splitlines() if l.strip()]
+    assert lines  # Kuhn has mixed-strategy spots
+    for l in lines:
+        assert "mixed" in json.loads(l)["tags"]

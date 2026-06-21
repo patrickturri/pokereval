@@ -1,0 +1,6 @@
+{"variant": "holdem", "hero_cards": ["As", "Ah"], "board": [], "pot": 3.0, "to_call": 2.0, "position": "BTN", "history": "raise to 3", "legal_actions": ["fold", "call", "raise"], "meta": {"reference_action": "raise"}}
+{"variant": "holdem", "hero_cards": ["7c", "2d"], "board": [], "pot": 3.0, "to_call": 2.0, "position": "UTG", "history": "raise to 3", "legal_actions": ["fold", "call", "raise"], "meta": {"reference_action": "fold"}}
+{"variant": "holdem", "hero_cards": ["As", "Ks"], "board": ["Ah", "7d", "2c"], "pot": 6.0, "to_call": 0.0, "position": "BB", "history": "checked to hero", "legal_actions": ["check", "bet"], "meta": {"reference_action": "bet"}}
+{"variant": "holdem", "hero_cards": ["Qh", "Qd"], "board": ["2s", "5c", "9d"], "pot": 8.0, "to_call": 0.0, "position": "BB", "history": "checked to hero", "legal_actions": ["check", "bet"], "meta": {"reference_action": "bet"}}
+{"variant": "holdem", "hero_cards": ["6h", "5h"], "board": ["As", "Kd", "Qc"], "pot": 8.0, "to_call": 6.0, "position": "BB", "history": "villain bets pot", "legal_actions": ["fold", "call", "raise"], "meta": {"reference_action": "fold"}}
+{"variant": "holdem", "hero_cards": ["Ks", "Kd"], "board": ["Kh", "7d", "2c"], "pot": 8.0, "to_call": 0.0, "position": "BB", "history": "checked to hero", "legal_actions": ["check", "bet"], "meta": {"reference_action": "bet"}}

@@ -7,7 +7,7 @@ from pokereval.interface.types import GameVariant, Action, State
 from pokereval.models.client import FakeClient
 from pokereval.graders.verifiable import VerifiableGrader
 from pokereval.eval.spots import SpotSet
-from pokereval.cli import run_for_client, main
+from pokereval.cli import run_for_client, main, build_client
 
 
 def test_run_for_client_returns_summary():
@@ -45,3 +45,50 @@ def test_cli_stdout_has_no_openspiel_import_noise():
     assert "not importable" not in proc.stdout
     assert "pokerkit_wrapper" not in proc.stdout
     assert "| Model |" in proc.stdout
+
+
+def test_build_client_fake_is_credential_free():
+    c = build_client("fake", model="ignored")
+    assert isinstance(c, FakeClient)
+    # Deterministic, parseable default response — no network, no credentials.
+    assert "ACTION:" in c.complete("any prompt")
+
+
+def test_build_client_fake_custom_name():
+    c = build_client("fake", model="x", name="baseline")
+    assert c.name == "baseline"
+
+
+def test_build_client_unknown_provider_raises():
+    with pytest.raises(ValueError):
+        build_client("not-a-provider", model="x")
+
+
+def test_build_client_anthropic_dispatches_without_calling_api(monkeypatch):
+    # build_client must construct the right client type for "anthropic" without
+    # us hitting the network. We patch the client class so no SDK/key is needed.
+    import pokereval.cli as cli_mod
+
+    captured = {}
+
+    class _Stub:
+        def __init__(self, name, model, **kwargs):
+            captured["name"] = name
+            captured["model"] = model
+            self.name = name
+
+    monkeypatch.setattr(cli_mod, "AnthropicClient", _Stub)
+    c = build_client("anthropic", model="claude-opus-4-8")
+    assert captured["model"] == "claude-opus-4-8"
+    # Name defaults to the model id when not given.
+    assert c.name == "claude-opus-4-8"
+
+
+def test_main_accepts_provider_and_model_flags(capsys):
+    code = main([
+        "run", "--variant", "holdem",
+        "--holdem-path", "data/holdem_spots.jsonl",
+        "--provider", "fake",
+    ])
+    assert code == 0
+    assert "| Model |" in capsys.readouterr().out

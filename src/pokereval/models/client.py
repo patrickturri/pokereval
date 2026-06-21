@@ -22,9 +22,17 @@ class FakeClient:
 
 
 class AnthropicClient:
-    """⚠ Confirm model IDs and SDK call via the claude-api skill before use."""
+    """Anthropic Messages API client (e.g. claude-opus-4-8).
 
-    def __init__(self, name: str, model: str, max_tokens: int = 1024):
+    Uses adaptive thinking — poker decisions are genuine multi-step reasoning,
+    and the current Opus/Fable family only supports adaptive thinking (a fixed
+    ``budget_tokens`` is rejected). Thinking blocks are returned with empty text
+    by default and are filtered out below; the parseable ``ACTION:`` line lives
+    in the final ``text`` block. ``max_tokens`` has headroom so thinking does not
+    crowd out the visible answer.
+    """
+
+    def __init__(self, name: str, model: str, max_tokens: int = 4096):
         from anthropic import Anthropic  # lazy import; optional dep
 
         self.name = name
@@ -36,6 +44,7 @@ class AnthropicClient:
         resp = self._client.messages.create(
             model=self.model,
             max_tokens=self.max_tokens,
+            thinking={"type": "adaptive"},
             system=system or "",
             messages=[{"role": "user", "content": prompt}],
         )

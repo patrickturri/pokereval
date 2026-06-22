@@ -76,9 +76,12 @@ and one open model served via an OpenAI-compatible endpoint.
 
 | Variant | N | Errors | Mean verifiable | Exact-match | Exploitability | Mean judge |
 |---|---|---|---|---|---|---|
-| Kuhn    | 12 | 0 | 0.750 | 0.750 | **0.167** | — |
-| Hold'em | 6  | 0 | 1.000 | n/a   | —          | 0.667 |
-| Leduc   | _pending — 936 spots, ~2.3 h serial_ | | | | | |
+| Kuhn    | 12  | 0 | 0.750 | 0.750 | **0.167** | — |
+| Leduc   | 936 | 0 | 0.527 | 0.545 | **2.765** | — |
+| Hold'em | 6   | 0 | 1.000 | n/a   | —          | 0.667 |
+
+For scale, the always-fold baseline scores exploitability ≈ 0.92 (Kuhn) and
+≈ 3.56 (Leduc); Nash is 0 in both.
 
 Reading these:
 
@@ -88,15 +91,24 @@ Reading these:
   Nash (0). It plays the obvious nodes correctly and collapses the mixed
   (bluff/call-frequency) nodes to pure strategies, which a best-responder
   punishes. This is exactly the failure mode the Phase-2 flywheel targets.
+- **Leduc is where it breaks down.** On the harder game Opus picks the modal
+  Nash action only **54.5%** of the time and its policy stays exploitable at
+  **2.765 chips/hand** — only ~22% better than always-folding (3.56), and a
+  world away from Nash. The capability gap between trivial (Kuhn) and merely
+  small (Leduc) imperfect-information games is large: more betting structure and
+  the public card overwhelm its equilibrium reasoning. This is the headline
+  failure mode.
 - **Hold'em: 6/6 curated reference actions correct** (mean-verifiable 1.000),
   with a judge reasoning score of 0.667 — the decisions are right and the stated
   reasoning is decent but doesn't hit every rubric criterion. (Exact-match is
   Nash-only and n/a here.)
-- **0 parse errors** on both — Opus reliably emits the `ACTION:` format.
+- **0 parse errors across all 954 decisions** — Opus reliably emits the
+  `ACTION:` format; the eval signal is clean, not noise from formatting.
 
 | Model | Variant | Mean verifiable | Exact-match | Exploitability | Mean judge | Parse-err |
 |---|---|---|---|---|---|---|
 | claude-opus-4-8 | kuhn   | 0.750 | 0.750 | 0.167 | — | 0/12 |
+| claude-opus-4-8 | leduc  | 0.527 | 0.545 | 2.765 | — | 0/936 |
 | claude-opus-4-8 | holdem | 1.000 | n/a   | —     | 0.667 | 0/6 |
 | _gpt-…_         | leduc  | | | | | |
 | _qwen-…_        | leduc  | | | | | |

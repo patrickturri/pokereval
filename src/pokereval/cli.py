@@ -42,8 +42,9 @@ def run_for_client(
     spotset: SpotSet,
     verifiable: VerifiableGrader,
     judge: JudgeGrader | None,
+    max_workers: int = 1,
 ) -> ModelSummary:
-    results = run_eval(client, spotset, verifiable, judge)
+    results = run_eval(client, spotset, verifiable, judge, max_workers=max_workers)
     summary = summarize(client.name, results)
     if spotset.nash_probs:  # Kuhn/Leduc → compute whole-policy exploitability
         try:
@@ -105,6 +106,12 @@ def main(argv: list[str] | None = None) -> int:
         default="markdown",
         help="Output format. 'json' emits the raw summaries for archival.",
     )
+    run.add_argument(
+        "--workers",
+        type=int,
+        default=1,
+        help="Concurrent model calls (thread pool). >1 speeds up real-model runs.",
+    )
 
     synth = sub.add_parser(
         "synth", help="Generate CFR/Nash-labeled synthetic spots (Kuhn/Leduc)."
@@ -139,7 +146,7 @@ def _cmd_run(args, parser) -> int:
         judge_client = build_client(args.judge_provider, args.judge_model)
         judge = JudgeGrader(judge_client)
 
-    summary = run_for_client(client, spotset, verifiable, judge)
+    summary = run_for_client(client, spotset, verifiable, judge, max_workers=args.workers)
     if args.format == "json":
         import json
 

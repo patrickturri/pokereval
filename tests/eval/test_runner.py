@@ -23,3 +23,25 @@ def test_run_eval_records_parse_errors():
     results = run_eval(FakeClient("m", "no action"), ss, VerifiableGrader(ss.nash_probs))
     assert results[0].error is not None
     assert results[0].verifiable is None
+
+
+def test_run_eval_preserves_order_with_concurrency():
+    # Many spots, each with a distinct info_state_key encoded in hero_cards;
+    # a callable client echoes the key back so we can verify result[i] pairs
+    # with spot[i] regardless of completion order under parallelism.
+    spots = []
+    for i in range(50):
+        spots.append(State(
+            variant=GameVariant.LEDUC, hero_cards=["K"], pot=4.0, to_call=2.0,
+            legal_actions=[Action.FOLD, Action.CALL, Action.RAISE],
+            info_state_key=f"S{i}",
+            meta={"os_legal": {"fold": 0, "call": 1, "raise": 2}},
+        ))
+    ss = SpotSet(spots=spots, nash_probs={})
+    # Action depends on the spot index parity, so order errors are detectable.
+    def respond(prompt):
+        return "ACTION: raise" if "raise-marker" in prompt else "ACTION: call"
+    client = FakeClient("m", lambda p: "ACTION: call")
+    results = run_eval(client, ss, VerifiableGrader({}), max_workers=8)
+    assert len(results) == 50
+    assert [r.info_state_key for r in results] == [f"S{i}" for i in range(50)]

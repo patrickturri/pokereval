@@ -53,15 +53,30 @@ class AnthropicClient:
 
 
 class OpenAIClient:
-    """⚠ Confirm model IDs and SDK call against live docs before use.
-    Also serves OpenAI-compatible endpoints (vLLM) via base_url."""
+    """OpenAI Chat Completions client.
 
-    def __init__(self, name: str, model: str, base_url: str | None = None):
+    Also serves any OpenAI-compatible endpoint (vLLM, Google Gemini's compat
+    layer) via ``base_url`` + ``api_key``.
+    """
+
+    def __init__(
+        self,
+        name: str,
+        model: str,
+        base_url: str | None = None,
+        api_key: str | None = None,
+        max_retries: int = 6,
+    ):
         from openai import OpenAI  # lazy import; optional dep
 
         self.name = name
         self.model = model
-        self._client = OpenAI(base_url=base_url) if base_url else OpenAI()
+        kwargs: dict = {"max_retries": max_retries}
+        if base_url:
+            kwargs["base_url"] = base_url
+        if api_key:
+            kwargs["api_key"] = api_key
+        self._client = OpenAI(**kwargs)
 
     def complete(self, prompt: str, system: str | None = None) -> str:
         messages = []
@@ -70,3 +85,23 @@ class OpenAIClient:
         messages.append({"role": "user", "content": prompt})
         resp = self._client.chat.completions.create(model=self.model, messages=messages)
         return resp.choices[0].message.content or ""
+
+
+class GeminiClient(OpenAIClient):
+    """Google Gemini via its OpenAI-compatible endpoint.
+
+    Reuses the tested OpenAI chat path; the API key is read from
+    ``GOOGLE_VERTEX_API_KEY`` or ``GEMINI_API_KEY`` unless passed explicitly.
+    """
+
+    BASE_URL = "https://generativelanguage.googleapis.com/v1beta/openai/"
+
+    def __init__(self, name: str, model: str, api_key: str | None = None):
+        import os
+
+        key = (
+            api_key
+            or os.environ.get("GOOGLE_VERTEX_API_KEY")
+            or os.environ.get("GEMINI_API_KEY")
+        )
+        super().__init__(name, model, base_url=self.BASE_URL, api_key=key)

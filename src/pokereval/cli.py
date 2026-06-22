@@ -1,6 +1,12 @@
 import argparse
 from .interface.types import GameVariant
-from .models.client import FakeClient, AnthropicClient, OpenAIClient, LLMClient
+from .models.client import (
+    FakeClient,
+    AnthropicClient,
+    OpenAIClient,
+    GeminiClient,
+    LLMClient,
+)
 from .graders.verifiable import VerifiableGrader
 from .graders.judge import JudgeGrader
 from .eval.spots import SpotSet, build_kuhn_leduc_spotset, load_holdem_spotset
@@ -10,7 +16,10 @@ from .eval.leaderboard import ModelSummary, summarize, render_markdown
 # Default model ids per provider (override with --model). Anthropic default is
 # the most capable current Opus; OpenAI has no single obvious default, so it is
 # required when --provider openai is selected.
-_DEFAULT_MODELS = {"anthropic": "claude-opus-4-8"}
+_DEFAULT_MODELS = {
+    "anthropic": "claude-opus-4-8",
+    "gemini": "gemini-3.1-pro-preview",
+}
 
 
 def build_client(provider: str, model: str, name: str | None = None) -> LLMClient:
@@ -26,8 +35,10 @@ def build_client(provider: str, model: str, name: str | None = None) -> LLMClien
         return AnthropicClient(name or model, model)
     if provider == "openai":
         return OpenAIClient(name or model, model)
+    if provider == "gemini":
+        return GeminiClient(name or model, model)
     raise ValueError(
-        f"Unknown provider {provider!r} (expected one of: fake, anthropic, openai)"
+        f"Unknown provider {provider!r} (expected: fake, anthropic, openai, gemini)"
     )
 
 
@@ -70,7 +81,7 @@ def main(argv: list[str] | None = None) -> int:
     run.add_argument("--holdem-path", default="data/holdem_spots.jsonl")
     run.add_argument(
         "--provider",
-        choices=["fake", "anthropic", "openai"],
+        choices=["fake", "anthropic", "openai", "gemini"],
         default="fake",
         help="Model provider. 'fake' (default) runs credential-free.",
     )
@@ -91,7 +102,7 @@ def main(argv: list[str] | None = None) -> int:
     )
     run.add_argument(
         "--judge-provider",
-        choices=["fake", "anthropic", "openai"],
+        choices=["fake", "anthropic", "openai", "gemini"],
         default="anthropic",
         help="Provider for the judge model (default: anthropic).",
     )

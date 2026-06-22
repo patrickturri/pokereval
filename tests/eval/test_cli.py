@@ -135,3 +135,19 @@ def test_main_synth_tag_filter(tmp_path):
     assert lines  # Kuhn has mixed-strategy spots
     for l in lines:
         assert "mixed" in json.loads(l)["tags"]
+
+
+def test_build_client_gemini_dispatches_without_calling_api(monkeypatch):
+    import pokereval.cli as cli_mod
+    captured = {}
+
+    class _Stub:
+        def __init__(self, name, model, **kwargs):
+            captured["name"] = name
+            captured["model"] = model
+            self.name = name
+
+    monkeypatch.setattr(cli_mod, "GeminiClient", _Stub)
+    c = build_client("gemini", model="gemini-3.1-pro-preview")
+    assert captured["model"] == "gemini-3.1-pro-preview"
+    assert c.name == "gemini-3.1-pro-preview"

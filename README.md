@@ -10,8 +10,6 @@ A poker testbed for frontier-model research engineering.
 ## Status
 
 🚧 Phase 1 (environment + eval suite) is implemented and reproducible.
-Design spec:
-[`docs/superpowers/specs/2026-06-20-poker-llm-research-eng-design.md`](docs/superpowers/specs/2026-06-20-poker-llm-research-eng-design.md) ·
 Phase 1 methodology + findings:
 [`docs/phase1-findings.md`](docs/phase1-findings.md)
 

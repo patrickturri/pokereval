@@ -25,7 +25,14 @@ def _eval_one(
     judge: JudgeGrader | None,
 ) -> SpotResult:
     prompt = render_state(state)
-    text = client.complete(prompt)
+    try:
+        text = client.complete(prompt)
+    except Exception as exc:  # noqa: BLE001 — keep one failure from tanking the run
+        return SpotResult(
+            info_state_key=state.info_state_key,
+            variant=state.variant.value,
+            error=f"{type(exc).__name__}: {exc}",
+        )
     try:
         decision = parse_decision(text, state.legal_actions)
     except ParseError as exc:

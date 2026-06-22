@@ -38,7 +38,8 @@ class AnthropicClient:
         self.name = name
         self.model = model
         self.max_tokens = max_tokens
-        self._client = Anthropic()
+        # Extra retries absorb 429s during high-concurrency leaderboard runs.
+        self._client = Anthropic(max_retries=6)
 
     def complete(self, prompt: str, system: str | None = None) -> str:
         resp = self._client.messages.create(

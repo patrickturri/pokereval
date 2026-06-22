@@ -45,3 +45,17 @@ def test_run_eval_preserves_order_with_concurrency():
     results = run_eval(client, ss, VerifiableGrader({}), max_workers=8)
     assert len(results) == 50
     assert [r.info_state_key for r in results] == [f"S{i}" for i in range(50)]
+
+
+def test_run_eval_records_client_exceptions_as_errors():
+    # A model call that raises (e.g. rate-limit exhaustion) must become an
+    # error result, not crash the whole run.
+    class Boom:
+        name = "boom"
+        def complete(self, prompt, system=None):
+            raise RuntimeError("429 rate limited")
+    ss = _spotset()
+    results = run_eval(Boom(), ss, VerifiableGrader(ss.nash_probs), max_workers=4)
+    assert len(results) == 1
+    assert results[0].error is not None
+    assert results[0].verifiable is None

@@ -7,7 +7,9 @@ class ModelSummary(BaseModel):
     n: int
     n_errors: int
     mean_verifiable: float
-    exact_match_rate: float
+    # None when no spots carry Nash 'exact_match' detail (e.g. Hold'em reference
+    # grading) — distinct from a genuine 0.0 rate.
+    exact_match_rate: float | None
     mean_judge: float | None
     exploitability: float | None
 
@@ -24,7 +26,7 @@ def summarize(model: str, results: list[SpotResult]) -> ModelSummary:
     exact = [r for r in graded if r.verifiable.detail.get("exact_match") is not None]
     exact_match_rate = (
         sum(1 for r in exact if r.verifiable.detail["exact_match"]) / len(exact)
-        if exact else 0.0
+        if exact else None
     )
 
     mean_judge = (
@@ -46,8 +48,9 @@ def render_markdown(summaries: list[ModelSummary]) -> str:
     for s in rows:
         judge = f"{s.mean_judge:.3f}" if s.mean_judge is not None else "—"
         expl = f"{s.exploitability:.4f}" if s.exploitability is not None else "—"
+        exact = f"{s.exact_match_rate:.3f}" if s.exact_match_rate is not None else "—"
         lines.append(
             f"| {s.model} | {s.n} | {s.n_errors} | {s.mean_verifiable:.3f} | "
-            f"{s.exact_match_rate:.3f} | {judge} | {expl} |"
+            f"{exact} | {judge} | {expl} |"
         )
     return "\n".join(lines)

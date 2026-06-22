@@ -64,18 +64,42 @@ with the Nash action at some nodes by chance.
 *(Generated with `make leaderboard ITERATIONS=2000`; small variance run-to-run
 because CFR is seeded by iteration count, not RNG.)*
 
-## Frontier-model leaderboard (to fill)
+## Frontier-model leaderboard
 
 Run with real keys (`make leaderboard PROVIDER=anthropic MODEL=claude-opus-4-8`,
-etc.) and paste the per-variant tables here. Target ≥3 models spanning at least
-one Anthropic model, one OpenAI model, and one open model served via an
-OpenAI-compatible endpoint.
+etc.). Target ≥3 models spanning at least one Anthropic model, one OpenAI model,
+and one open model served via an OpenAI-compatible endpoint.
+
+### Results so far
+
+**claude-opus-4-8** (adaptive thinking; CFR at 2000 iterations):
+
+| Variant | N | Errors | Mean verifiable | Exact-match | Exploitability | Mean judge |
+|---|---|---|---|---|---|---|
+| Kuhn    | 12 | 0 | 0.750 | 0.750 | **0.167** | — |
+| Hold'em | 6  | 0 | 1.000 | n/a   | —          | 0.667 |
+| Leduc   | _pending — 936 spots, ~2.3 h serial_ | | | | | |
+
+Reading these:
+
+- **Kuhn confirms the headline hypothesis.** Opus picks the modal Nash action
+  75% of the time, but its *whole policy* is still exploitable at **0.167
+  chips/hand** — far better than the always-fold baseline (0.92) yet well above
+  Nash (0). It plays the obvious nodes correctly and collapses the mixed
+  (bluff/call-frequency) nodes to pure strategies, which a best-responder
+  punishes. This is exactly the failure mode the Phase-2 flywheel targets.
+- **Hold'em: 6/6 curated reference actions correct** (mean-verifiable 1.000),
+  with a judge reasoning score of 0.667 — the decisions are right and the stated
+  reasoning is decent but doesn't hit every rubric criterion. (Exact-match is
+  Nash-only and n/a here.)
+- **0 parse errors** on both — Opus reliably emits the `ACTION:` format.
 
 | Model | Variant | Mean verifiable | Exact-match | Exploitability | Mean judge | Parse-err |
 |---|---|---|---|---|---|---|
-| _claude-opus-4-8_ | leduc | | | | | |
-| _gpt-…_           | leduc | | | | | |
-| _qwen-…_          | leduc | | | | | |
+| claude-opus-4-8 | kuhn   | 0.750 | 0.750 | 0.167 | — | 0/12 |
+| claude-opus-4-8 | holdem | 1.000 | n/a   | —     | 0.667 | 0/6 |
+| _gpt-…_         | leduc  | | | | | |
+| _qwen-…_        | leduc  | | | | | |
 
 ### Hypotheses to test (Phase-1 headline)
 

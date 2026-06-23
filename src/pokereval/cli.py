@@ -158,6 +158,28 @@ def main(argv: list[str] | None = None) -> int:
     return _cmd_run(args, parser)
 
 
+def _preflight_billing(timeout: float = 30.0) -> bool:
+    """Quick check that Tinker is reachable and not billing-blocked.
+
+    The SDK retries 402s for ~1h, so we run the probe in a daemon thread and give
+    up after ``timeout`` seconds — a slow/blocked balance reads as not-ok rather
+    than hanging the whole run.
+    """
+    import concurrent.futures
+
+    def _probe() -> bool:
+        import tinker
+
+        tinker.ServiceClient().get_server_capabilities()
+        return True
+
+    try:
+        with concurrent.futures.ThreadPoolExecutor(max_workers=1) as ex:
+            return ex.submit(_probe).result(timeout=timeout)
+    except Exception:
+        return False
+
+
 def _first_legal_action(prompt: str) -> str:
     """Pick the first action listed on the prompt's 'Legal actions:' line.
 
@@ -211,6 +233,13 @@ def _cmd_rl_train(args) -> int:
             print(f"[wandb disabled: {e}]")
 
     if args.live:
+        if not _preflight_billing():
+            print(
+                "[abort] Tinker is unreachable or billing-blocked (HTTP 402). "
+                "Add funds at https://tinker-console.thinkingmachines.ai/billing/balance "
+                "and retry. (Skipping to avoid a ~1h silent retry loop on a dead balance.)"
+            )
+            return 2
         from .rl.backend import TinkerBackend
 
         backend = TinkerBackend(cfg)

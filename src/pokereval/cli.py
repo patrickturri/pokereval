@@ -142,6 +142,13 @@ def main(argv: list[str] | None = None) -> int:
     rl.add_argument("--live", action="store_true", help="Use the live Tinker backend.")
     rl.add_argument("--base-model", default=None)
     rl.add_argument("--wandb", action="store_true")
+    # Optional overrides on top of the preset (None = keep preset value).
+    rl.add_argument("--steps", type=int, default=None)
+    rl.add_argument("--lr", type=float, default=None)
+    rl.add_argument("--temperature", type=float, default=None)
+    rl.add_argument("--group-size", type=int, default=None)
+    rl.add_argument("--reward-mode", choices=["kl_nash", "nash_prob"], default=None)
+    rl.add_argument("--eval-samples", type=int, default=None)
 
     args = parser.parse_args(argv)
     if args.cmd == "synth":
@@ -175,6 +182,18 @@ def _cmd_rl_train(args) -> int:
     overrides = {"variant": args.variant}
     if args.base_model:
         overrides["base_model"] = args.base_model
+    if args.steps is not None:
+        overrides["num_steps"] = args.steps
+    if args.lr is not None:
+        overrides["learning_rate"] = args.lr
+    if args.temperature is not None:
+        overrides["temperature"] = args.temperature
+    if args.group_size is not None:
+        overrides["group_size"] = args.group_size
+    if args.reward_mode is not None:
+        overrides["reward_mode"] = args.reward_mode
+    if args.eval_samples is not None:
+        overrides["eval_samples"] = args.eval_samples
     cfg = dataclasses.replace(cfg, **overrides)
 
     variant = GameVariant(args.variant)

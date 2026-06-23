@@ -18,10 +18,13 @@ class RLConfig:
     eval_split: float = 0.2
     seed: int = 0
     iterations: int = 2000         # CFR iterations for synth labels
+    reward_mode: str = "kl_nash"   # "kl_nash" (rewards mixing) or "nash_prob" (collapses)
+    eval_samples: int = 16         # samples/node for mixed-policy exploitability
 
 
 PRESETS: dict[str, RLConfig] = {
-    "smoke": RLConfig(num_steps=2, batch_spots=2, group_size=2, eval_every=1, max_tokens=32),
+    "smoke": RLConfig(num_steps=2, batch_spots=2, group_size=2, eval_every=1, max_tokens=32,
+                      eval_samples=4),
     "real": RLConfig(num_steps=60, batch_spots=16, group_size=8, eval_every=10),
 }
 

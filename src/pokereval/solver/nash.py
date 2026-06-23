@@ -166,3 +166,44 @@ def exploitability_of_choices(
         for i, a in enumerate(legal):
             row[i] = 1.0 if a == chosen else 0.0
     return float(_exploitability_module.exploitability(game, tab))
+
+
+def exploitability_of_distribution(
+    variant: GameVariant,
+    dist_by_key: dict[str, dict[int, float]],
+) -> float:
+    """Build a MIXED TabularPolicy from per-info-state action distributions.
+
+    Unlike ``exploitability_of_choices`` (deterministic), this assigns each legal
+    action its given probability mass, so a policy that *mixes* (as Leduc Nash
+    requires) is evaluated faithfully rather than collapsed to an argmax.
+
+    Parameters
+    ----------
+    variant:
+        The GameVariant to evaluate.
+    dist_by_key:
+        Mapping info_key -> {os_action_id: probability}. Probabilities are
+        renormalized over legal actions; info keys absent (or with zero mass)
+        retain the uniform default.
+
+    Returns
+    -------
+    float
+        Exploitability of the mixed strategy.
+    """
+    game = load_game(variant)
+    tab = os_policy.TabularPolicy(game)
+    for node in iter_nodes(variant):
+        dist = dist_by_key.get(node.info_key)
+        if not dist:
+            continue
+        legal = list(node.os_state.legal_actions())
+        masses = [float(dist.get(a, 0.0)) for a in legal]
+        total = sum(masses)
+        if total <= 0.0:
+            continue
+        row = tab.policy_for_key(node.info_key)
+        for i, m in enumerate(masses):
+            row[i] = m / total
+    return float(_exploitability_module.exploitability(game, tab))

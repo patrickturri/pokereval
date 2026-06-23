@@ -9,6 +9,7 @@ from pokereval.solver.nash import (
     nash_probs_by_key,
     nash_exploitability,
     exploitability_of_choices,
+    exploitability_of_distribution,
 )
 from pokereval.engine.kuhn_leduc import load_game
 
@@ -47,3 +48,16 @@ def test_exploitability_of_choices_deterministic():
     exp = exploitability_of_choices(GameVariant.KUHN, choices)
     assert isinstance(exp, float)
     assert exp > 0.0
+
+
+def test_exploitability_of_distribution_nash_is_near_zero():
+    # Feeding the actual Nash mixed distribution must yield ~0 exploitability,
+    # whereas its argmax-collapsed (deterministic) version is more exploitable.
+    nash = nash_probs_by_key(GameVariant.KUHN, iterations=4000)
+    dist = {k: {int(a): p for a, p in d.items()} for k, d in nash.items()}
+    mixed_exp = exploitability_of_distribution(GameVariant.KUHN, dist)
+    assert mixed_exp < 0.05  # near-Nash
+
+    collapsed = {k: {max(d, key=d.get): 1} for k, d in dist.items()}
+    pure_exp = exploitability_of_distribution(GameVariant.KUHN, collapsed)
+    assert pure_exp > mixed_exp  # collapsing the mix raises exploitability

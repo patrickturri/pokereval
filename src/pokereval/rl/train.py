@@ -4,7 +4,7 @@ from pokereval.interface.types import GameVariant
 from pokereval.interface.prompts import render_state
 from pokereval.rl.config import RLConfig
 from pokereval.rl.backend import Backend
-from pokereval.rl.reward import spot_reward
+from pokereval.rl.reward import spot_reward, kl_to_nash_reward
 from pokereval.rl.advantage import group_advantages
 from pokereval.rl.datum import build_datum
 from pokereval.rl.evaluate import evaluate_policy, EvalReport
@@ -22,7 +22,17 @@ def _maybe_eval(config, all_spots, eval_spots, sampler) -> EvalReport | None:
         import open_spiel  # noqa: F401
     except Exception:
         return None
-    return evaluate_policy(GameVariant(config.variant), all_spots, eval_spots, sampler)
+    return evaluate_policy(
+        GameVariant(config.variant), all_spots, eval_spots, sampler,
+        mixed_samples=config.eval_samples, mixed_temperature=config.temperature,
+    )
+
+
+def _training_reward(config, spot, comp) -> float:
+    """Per-completion training reward selected by config.reward_mode."""
+    if config.reward_mode == "kl_nash":
+        return kl_to_nash_reward(spot, comp.text, action_logprob=sum(comp.logprobs))
+    return spot_reward(spot, comp.text)[0]  # "nash_prob" (legacy / ablation)
 
 
 def train(config: RLConfig, train_spots, eval_spots, backend: Backend, logger=None) -> TrainResult:
@@ -39,24 +49,25 @@ def train(config: RLConfig, train_spots, eval_spots, backend: Backend, logger=No
         cursor += config.batch_spots
 
         data = []
-        step_reward_sum = 0.0
-        step_reward_count = 0
+        nash_sum = 0.0
+        count = 0
         prompts = [render_state(spot.state) for spot in batch]
         batch_comps = sampler.sample_many(prompts, config.group_size, config.temperature)
         for spot, prompt, comps in zip(batch, prompts, batch_comps):
-            rewards = [spot_reward(spot, c.text)[0] for c in comps]
-            advs = group_advantages(rewards)
+            train_rewards = [_training_reward(config, spot, c) for c in comps]
+            advs = group_advantages(train_rewards)
             prompt_tokens = backend.encode(prompt)
             for comp, adv in zip(comps, advs):
                 data.append(build_datum(prompt_tokens, comp.tokens, comp.logprobs, adv))
-            step_reward_sum += sum(rewards)
-            step_reward_count += len(rewards)
+            # Track Nash-prob (interpretable) for logging, separate from train reward.
+            nash_sum += sum(spot_reward(spot, c.text)[0] for c in comps)
+            count += len(comps)
 
         backend.train_step(data, config.learning_rate)
-        mean_reward = step_reward_sum / step_reward_count if step_reward_count else 0.0
-        result.step_rewards.append(mean_reward)
+        mean_nash = nash_sum / count if count else 0.0
+        result.step_rewards.append(mean_nash)
         if logger:
-            logger({"step": step, "mean_reward": mean_reward, "n_data": len(data)})
+            logger({"step": step, "mean_nash_prob": mean_nash, "n_data": len(data)})
 
     result.after = _maybe_eval(config, all_spots, eval_spots, backend.sampler())
     return result

@@ -18,8 +18,9 @@ def test_evaluate_runs_on_leduc():
     sc = MockSamplingClient(action_for=action_for)
     choices = greedy_choices(GameVariant.LEDUC, spots, sc)
     assert len(choices) > 0
-    rep = evaluate_policy(GameVariant.LEDUC, spots, spots[:20], sc)
+    rep = evaluate_policy(GameVariant.LEDUC, spots, spots[:20], sc, mixed_samples=4)
     assert rep.exploitability >= 0.0
+    assert rep.mixed_exploitability >= 0.0
     assert 0.0 <= rep.mean_nash_prob <= 1.0
     assert 0.0 <= rep.exact_match <= 1.0
     assert rep.n == 20

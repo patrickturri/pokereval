@@ -1,4 +1,4 @@
-.PHONY: install test test-fast leaderboard leaderboard-json clean
+.PHONY: install test test-fast leaderboard leaderboard-json synth rl-smoke rl-train clean
 
 # Editable install with all extras (OpenSpiel, model SDKs).
 install:
@@ -42,6 +42,14 @@ TAG_FLAG := $(if $(TAG),--tag $(TAG),)
 synth:
 	python -m pokereval.cli synth --variant $(VARIANT) --iterations $(ITERATIONS) \
 		--out $(OUT) $(TAG_FLAG)
+
+# RLVR (Phase 2). rl-smoke runs the loop fully offline (mock backend, no account).
+# rl-train runs the live Tinker training run (needs Tinker billing + W&B).
+rl-smoke:
+	python -m pokereval.cli rl-train --variant leduc --preset smoke
+
+rl-train:
+	python -m pokereval.cli rl-train --variant leduc --preset real --live --wandb
 
 clean:
 	find . -type d -name __pycache__ -prune -exec rm -rf {} +

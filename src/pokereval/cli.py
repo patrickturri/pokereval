@@ -136,10 +136,82 @@ def main(argv: list[str] | None = None) -> int:
         help="Only emit spots carrying this failure-mode tag (e.g. 'mixed').",
     )
 
+    rl = sub.add_parser("rl-train", help="RLVR train a model on Kuhn/Leduc via Tinker.")
+    rl.add_argument("--variant", choices=["kuhn", "leduc"], default="leduc")
+    rl.add_argument("--preset", choices=["smoke", "real"], default="smoke")
+    rl.add_argument("--live", action="store_true", help="Use the live Tinker backend.")
+    rl.add_argument("--base-model", default=None)
+    rl.add_argument("--wandb", action="store_true")
+
     args = parser.parse_args(argv)
     if args.cmd == "synth":
         return _cmd_synth(args)
+    if args.cmd == "rl-train":
+        return _cmd_rl_train(args)
     return _cmd_run(args, parser)
+
+
+def _first_legal_action(prompt: str) -> str:
+    """Pick the first action listed on the prompt's 'Legal actions:' line.
+
+    Used by the offline (mock) backend so the heuristic policy always emits a
+    legal action. (Leduc actions are check/raise/fold/call — there is no 'bet',
+    and the word 'bet' appears in the instruction text, so substring checks fail.)
+    """
+    line = next(l for l in prompt.splitlines() if l.startswith("Legal actions:"))
+    return line.split(":", 1)[1].split(",")[0].strip()
+
+
+def _cmd_rl_train(args) -> int:
+    import json
+    import dataclasses
+    from .interface.types import GameVariant
+    from .synth.generator import build_labeled_spots
+    from .rl.config import get_preset
+    from .rl.dataset import split_spots
+    from .rl.train import train
+
+    cfg = get_preset(args.preset)
+    overrides = {"variant": args.variant}
+    if args.base_model:
+        overrides["base_model"] = args.base_model
+    cfg = dataclasses.replace(cfg, **overrides)
+
+    variant = GameVariant(args.variant)
+    spots = build_labeled_spots(variant, cfg.iterations)
+    train_spots, eval_spots = split_spots(spots, cfg.eval_split, cfg.seed)
+
+    logger = None
+    if args.wandb:
+        try:
+            import wandb
+
+            wandb.init(project="pokereval-rlvr", config=dataclasses.asdict(cfg))
+            logger = lambda d: wandb.log(d)  # noqa: E731
+        except Exception as e:  # noqa: BLE001
+            print(f"[wandb disabled: {e}]")
+
+    if args.live:
+        from .rl.backend import TinkerBackend
+
+        backend = TinkerBackend(cfg)
+    else:
+        from .rl.backend import FakeBackend
+        from .rl.sampler import MockSamplingClient
+
+        backend = FakeBackend(MockSamplingClient(action_for=_first_legal_action))
+
+    result = train(cfg, train_spots, eval_spots, backend, logger=logger)
+    payload = {
+        "preset": args.preset,
+        "variant": args.variant,
+        "live": args.live,
+        "step_rewards": result.step_rewards,
+        "before": dataclasses.asdict(result.before) if result.before else None,
+        "after": dataclasses.asdict(result.after) if result.after else None,
+    }
+    print(json.dumps(payload, indent=2))
+    return 0
 
 
 def _cmd_run(args, parser) -> int:

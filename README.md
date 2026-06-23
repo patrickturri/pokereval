@@ -47,6 +47,22 @@ make synth VARIANT=kuhn TAG=mixed OUT=data/kuhn_mixed.jsonl
 # or: python -m pokereval.cli synth --variant leduc --out data/leduc_synth.jsonl
 ```
 
+### RLVR training (Phase 2)
+
+The `src/pokereval/rl/` module turns those labeled spots into an RLVR run: a
+single-step bandit where the reward is the Nash probability of the chosen action,
+optimized with group-relative advantages and a LoRA fine-tune on Tinker
+(`importance_sampling`). The headline metric is the trained policy's Leduc
+**exploitability** against the CFR solver, before vs after.
+
+```bash
+make rl-smoke   # full loop, offline (mock backend) — no Tinker account needed
+make rl-train   # live LoRA run on Tinker (needs a billed account + W&B)
+```
+
+Methodology + results: [`docs/phase2-findings.md`](docs/phase2-findings.md).
+Everything but the live `--live` run is exercised by the offline test suite.
+
 ## Phases
 
 1. **Environment + Eval suite** — poker engine wrapper, graders (verifiable +

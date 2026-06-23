@@ -70,48 +70,53 @@ Run with real keys (`make leaderboard PROVIDER=anthropic MODEL=claude-opus-4-8`,
 etc.). Target ≥3 models spanning at least one Anthropic model, one OpenAI model,
 and one open model served via an OpenAI-compatible endpoint.
 
-### Results so far
+### Comparative leaderboard
 
-**claude-opus-4-8** (adaptive thinking; CFR at 2000 iterations):
+Two flagships, adaptive/reasoning enabled, CFR at 2000 iterations. Lower
+exploitability is better; baseline (always-fold) and Nash bracket the scale.
 
-| Variant | N | Errors | Mean verifiable | Exact-match | Exploitability | Mean judge |
-|---|---|---|---|---|---|---|
-| Kuhn    | 12  | 0 | 0.750 | 0.750 | **0.167** | — |
-| Leduc   | 936 | 0 | 0.527 | 0.545 | **2.765** | — |
-| Hold'em | 6   | 0 | 1.000 | n/a   | —          | 0.667 |
+| Variant | Metric | Baseline | **claude-opus-4-8** | **gemini-3.1-pro** | Nash |
+|---|---|---|---|---|---|
+| Kuhn  | exploitability ↓ | 0.92 | 0.167 | 0.167 | 0 |
+| Kuhn  | exact-match ↑    | 0.50 | 0.750 | 0.750 | 1 |
+| Leduc | exploitability ↓ | 3.56 | 2.765 | **2.458** | 0 |
+| Leduc | mean-verifiable ↑| 0.48 | 0.527 | **0.603** | 1 |
+| Leduc | exact-match ↑    | 0.50 | 0.545 | **0.645** | 1 |
+| Hold'em | reference-match ↑ | 0.50 | 1.000 | 1.000 | — |
+| Hold'em | judge ↑         | —    | 0.667 | 0.667 | — |
 
-For scale, the always-fold baseline scores exploitability ≈ 0.92 (Kuhn) and
-≈ 3.56 (Leduc); Nash is 0 in both.
+Per-variant N: Kuhn 12, Leduc 936, Hold'em 6. **0 parse errors** for either
+model across all 954 decisions per model — the eval signal is clean, not
+formatting noise.
+
+(OpenAI's `gpt-5.1` is wired and ready but its key returned `insufficient_quota`,
+so it is not yet on the board.)
 
 Reading these:
 
-- **Kuhn confirms the headline hypothesis.** Opus picks the modal Nash action
-  75% of the time, but its *whole policy* is still exploitable at **0.167
-  chips/hand** — far better than the always-fold baseline (0.92) yet well above
-  Nash (0). It plays the obvious nodes correctly and collapses the mixed
-  (bluff/call-frequency) nodes to pure strategies, which a best-responder
-  punishes. This is exactly the failure mode the Phase-2 flywheel targets.
-- **Leduc is where it breaks down.** On the harder game Opus picks the modal
-  Nash action only **54.5%** of the time and its policy stays exploitable at
-  **2.765 chips/hand** — only ~22% better than always-folding (3.56), and a
-  world away from Nash. The capability gap between trivial (Kuhn) and merely
-  small (Leduc) imperfect-information games is large: more betting structure and
-  the public card overwhelm its equilibrium reasoning. This is the headline
-  failure mode.
-- **Hold'em: 6/6 curated reference actions correct** (mean-verifiable 1.000),
-  with a judge reasoning score of 0.667 — the decisions are right and the stated
-  reasoning is decent but doesn't hit every rubric criterion. (Exact-match is
-  Nash-only and n/a here.)
-- **0 parse errors across all 954 decisions** — Opus reliably emits the
-  `ACTION:` format; the eval signal is clean, not noise from formatting.
+- **The easy games don't discriminate.** On Kuhn and Hold'em the two flagships
+  are identical (Kuhn exploitability 0.167 each; Hold'em 6/6 reference actions
+  and judge 0.667 each). Both still leave Kuhn exploitable at 0.167 vs Nash 0 —
+  they play obvious nodes correctly but collapse the mixed (bluff/call-frequency)
+  nodes to pure strategies, exactly the failure mode the Phase-2 flywheel targets.
+- **Leduc is where they separate, and where both break down.** Adding a public
+  card and a second betting round, both models fall far short of Nash:
+  exploitability 2.46–2.77 vs baseline 3.56 (only 22–31% better than always
+  folding) and modal-action accuracy of just 0.55–0.65. **Gemini 3.1 Pro is the
+  stronger imperfect-information reasoner here** — ~11% less exploitable (2.458
+  vs 2.765) and +10 points of exact-match (0.645 vs 0.545). The capability gap
+  between trivial (Kuhn) and merely-small (Leduc) games is the headline result:
+  more betting structure overwhelms equilibrium reasoning in *both* frontier
+  models, just less so for Gemini.
 
 | Model | Variant | Mean verifiable | Exact-match | Exploitability | Mean judge | Parse-err |
 |---|---|---|---|---|---|---|
-| claude-opus-4-8 | kuhn   | 0.750 | 0.750 | 0.167 | — | 0/12 |
-| claude-opus-4-8 | leduc  | 0.527 | 0.545 | 2.765 | — | 0/936 |
-| claude-opus-4-8 | holdem | 1.000 | n/a   | —     | 0.667 | 0/6 |
-| _gpt-…_         | leduc  | | | | | |
-| _qwen-…_        | leduc  | | | | | |
+| claude-opus-4-8  | kuhn   | 0.750 | 0.750 | 0.167 | —     | 0/12 |
+| claude-opus-4-8  | leduc  | 0.527 | 0.545 | 2.765 | —     | 0/936 |
+| claude-opus-4-8  | holdem | 1.000 | n/a   | —     | 0.667 | 0/6 |
+| gemini-3.1-pro   | kuhn   | 0.750 | 0.750 | 0.167 | —     | 0/12 |
+| gemini-3.1-pro   | leduc  | 0.603 | 0.645 | 2.458 | —     | 0/936 |
+| gemini-3.1-pro   | holdem | 1.000 | n/a   | —     | 0.667 | 0/6 |
 
 ### Hypotheses to test (Phase-1 headline)
 

@@ -9,20 +9,24 @@ def build_datum(
     completion_logprobs: list[float],
     advantage: float,
 ) -> tinker.Datum:
-    """Build an importance_sampling Datum with completion-only loss weighting."""
+    """Build an importance_sampling Datum.
+
+    Prompt positions are masked by setting their advantage to 0 (the
+    importance_sampling loss has no separate ``weights`` arg — a 0 advantage
+    contributes no policy-gradient signal). Loss-fn inputs are therefore
+    ``target_tokens``, ``advantages``, ``logprobs`` (the sampling logprobs).
+    """
     full = list(prompt_tokens) + list(completion_tokens)
     model_input = tinker.ModelInput.from_ints(full[:-1])
     target_tokens = full[1:]                      # length L = len(full) - 1
     L = len(target_tokens)
     n_comp = len(completion_tokens)
 
-    weights = [0.0] * L
     advantages = [0.0] * L
     logprobs = [0.0] * L
     # completion-target positions are the final n_comp positions of the shifted target
     for j in range(n_comp):
         i = L - n_comp + j
-        weights[i] = 1.0
         advantages[i] = float(advantage)
         logprobs[i] = float(completion_logprobs[j])
 
@@ -30,7 +34,6 @@ def build_datum(
         model_input=model_input,
         loss_fn_inputs={
             "target_tokens": np.array(target_tokens, dtype=np.int64),
-            "weights": np.array(weights, dtype=np.float32),
             "advantages": np.array(advantages, dtype=np.float32),
             "logprobs": np.array(logprobs, dtype=np.float32),
         },

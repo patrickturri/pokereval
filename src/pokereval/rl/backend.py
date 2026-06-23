@@ -4,6 +4,46 @@ from pokereval.rl.config import RLConfig
 from pokereval.rl.sampler import SamplingClient, Completion
 
 
+# Terse system instruction: poker decision models (esp. reasoning models like
+# Qwen3) otherwise emit long chain-of-thought and rarely reach a parseable ACTION
+# line within the token budget, yielding all-zero rewards. This forces a single
+# parseable line so the verifiable reward (and thus the RL signal) is nonzero.
+SYSTEM_PROMPT = (
+    "You are a poker solver. Reply with ONLY one line, exactly: "
+    "ACTION: <action>  (for example 'ACTION: raise'). "
+    "No explanation, no reasoning, no extra text."
+)
+
+
+def _encode_chat(tokenizer, text: str) -> list[int]:
+    """Encode (system + user) turn to token ids, normalizing across tokenizers.
+
+    `apply_chat_template(..., tokenize=True)` returns a flat list on some
+    tokenizers and a BatchEncoding ({'input_ids': [...]}) on others; coerce both
+    to a plain list[int]. Thinking mode is disabled where supported.
+    """
+    messages = [
+        {"role": "system", "content": SYSTEM_PROMPT},
+        {"role": "user", "content": text},
+    ]
+    kwargs = dict(add_generation_prompt=True, tokenize=True)
+    try:
+        out = tokenizer.apply_chat_template(messages, enable_thinking=False, **kwargs)
+    except TypeError:  # tokenizer doesn't accept enable_thinking
+        out = tokenizer.apply_chat_template(messages, **kwargs)
+    if hasattr(out, "input_ids"):  # BatchEncoding
+        out = out["input_ids"]
+    if out and isinstance(out[0], (list, tuple)):  # batched nesting
+        out = out[0]
+    return [int(t) for t in out]
+
+
+def _seq_to_completion(seq, tokenizer) -> Completion:
+    toks = list(seq.tokens_np.tolist()) if seq.tokens_np is not None else list(seq._tokens_list)
+    lps = list(seq.logprobs_np.tolist()) if seq.logprobs_np is not None else list(seq._logprobs_list)
+    return Completion(text=tokenizer.decode(toks), tokens=toks, logprobs=lps)
+
+
 class Backend(Protocol):
     def encode(self, text: str) -> list[int]: ...
     def sampler(self) -> SamplingClient: ...
@@ -31,26 +71,43 @@ class FakeBackend:
 class _TinkerSampler:
     """Wraps a tinker SamplingClient as our SamplingClient protocol."""
 
-    def __init__(self, sc, tokenizer, max_tokens: int):
+    def __init__(self, sc, tokenizer, max_tokens: int, chunk: int = 32):
         self._sc = sc
         self._tok = tokenizer
         self._max_tokens = max_tokens
+        self._chunk = chunk
+
+    def _params(self, temperature: float):
+        import tinker
+        return tinker.SamplingParams(max_tokens=self._max_tokens, temperature=temperature)
 
     def sample(self, prompt: str, n: int, temperature: float) -> list[Completion]:
         import tinker
-        ids = self._tok.apply_chat_template(
-            [{"role": "user", "content": prompt}], add_generation_prompt=True, tokenize=True
-        )
+        ids = _encode_chat(self._tok, prompt)
         model_input = tinker.ModelInput.from_ints(ids)
-        params = tinker.SamplingParams(max_tokens=self._max_tokens, temperature=temperature)
-        resp = self._sc.sample(prompt=model_input, num_samples=n, sampling_params=params).result()
-        out: list[Completion] = []
-        for seq in resp.sequences:
-            toks = list(seq.tokens_np.tolist()) if seq.tokens_np is not None else list(seq._tokens_list)
-            lps = list(seq.logprobs_np.tolist()) if seq.logprobs_np is not None else list(seq._logprobs_list)
-            text = self._tok.decode(toks)
-            out.append(Completion(text=text, tokens=toks, logprobs=lps))
-        return out
+        resp = self._sc.sample(
+            prompt=model_input, num_samples=n, sampling_params=self._params(temperature)
+        ).result()
+        return [_seq_to_completion(seq, self._tok) for seq in resp.sequences]
+
+    def sample_many(
+        self, prompts: list[str], n: int, temperature: float
+    ) -> list[list[Completion]]:
+        """Fire sampling requests concurrently in chunks (Tinker sample() returns
+        a future), so 900+ eval prompts don't run end-to-end sequentially."""
+        import tinker
+        params = self._params(temperature)
+        results: list[list[Completion]] = []
+        for start in range(0, len(prompts), self._chunk):
+            chunk = prompts[start:start + self._chunk]
+            futures = []
+            for p in chunk:
+                mi = tinker.ModelInput.from_ints(_encode_chat(self._tok, p))
+                futures.append(self._sc.sample(prompt=mi, num_samples=n, sampling_params=params))
+            for fut in futures:
+                resp = fut.result()
+                results.append([_seq_to_completion(seq, self._tok) for seq in resp.sequences])
+        return results
 
 
 class TinkerBackend:
@@ -68,9 +125,7 @@ class TinkerBackend:
         self._sampler_seq = 0
 
     def encode(self, text: str) -> list[int]:
-        return list(self._tok.apply_chat_template(
-            [{"role": "user", "content": text}], add_generation_prompt=True, tokenize=True
-        ))
+        return _encode_chat(self._tok, text)
 
     def sampler(self) -> SamplingClient:
         self._sampler_seq += 1

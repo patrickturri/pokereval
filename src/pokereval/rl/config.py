@@ -4,7 +4,7 @@ from dataclasses import dataclass
 
 @dataclass(frozen=True)
 class RLConfig:
-    base_model: str = "Qwen/Qwen3-8B"
+    base_model: str = "Qwen/Qwen3.5-4B"
     lora_rank: int = 32
     variant: str = "leduc"
     num_steps: int = 60
@@ -12,7 +12,7 @@ class RLConfig:
     group_size: int = 8            # completions sampled per spot
     learning_rate: float = 1e-5
     temperature: float = 1.0
-    max_tokens: int = 64
+    max_tokens: int = 32          # enough for "ACTION: <action>"; terse system prompt
     refresh_every: int = 1         # steps between sampler refreshes
     eval_every: int = 10
     eval_split: float = 0.2

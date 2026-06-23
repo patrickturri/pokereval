@@ -14,3 +14,12 @@ def test_action_for_overrides_per_prompt():
     sc = MockSamplingClient(action_for=lambda p: "fold" if "river" in p else "call")
     assert "ACTION: fold" in sc.sample("river spot", 1, 0.0)[0].text
     assert "ACTION: call" in sc.sample("turn spot", 1, 0.0)[0].text
+
+
+def test_sample_many_aligns_to_prompts():
+    sc = MockSamplingClient(action_for=lambda p: "fold" if "river" in p else "call")
+    batches = sc.sample_many(["river spot", "turn spot"], n=2, temperature=1.0)
+    assert len(batches) == 2
+    assert all(len(b) == 2 for b in batches)
+    assert "ACTION: fold" in batches[0][0].text
+    assert "ACTION: call" in batches[1][0].text

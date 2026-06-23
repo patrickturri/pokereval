@@ -41,9 +41,9 @@ def train(config: RLConfig, train_spots, eval_spots, backend: Backend, logger=No
         data = []
         step_reward_sum = 0.0
         step_reward_count = 0
-        for spot in batch:
-            prompt = render_state(spot.state)
-            comps = sampler.sample(prompt, config.group_size, config.temperature)
+        prompts = [render_state(spot.state) for spot in batch]
+        batch_comps = sampler.sample_many(prompts, config.group_size, config.temperature)
+        for spot, prompt, comps in zip(batch, prompts, batch_comps):
             rewards = [spot_reward(spot, c.text)[0] for c in comps]
             advs = group_advantages(rewards)
             prompt_tokens = backend.encode(prompt)

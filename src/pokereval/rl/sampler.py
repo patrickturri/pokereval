@@ -15,6 +15,12 @@ class SamplingClient(Protocol):
     def sample(self, prompt: str, n: int, temperature: float) -> list[Completion]:
         ...
 
+    def sample_many(
+        self, prompts: list[str], n: int, temperature: float
+    ) -> list[list[Completion]]:
+        """Sample for several prompts; result[i] is the completions for prompts[i]."""
+        ...
+
 
 class MockSamplingClient:
     """Offline sampler. Emits 'ACTION: <action>' with deterministic dummy tokens."""
@@ -34,3 +40,8 @@ class MockSamplingClient:
         tokens = [ord(ch) % 256 for ch in text]
         logprobs = [-1.0] * len(tokens)
         return [Completion(text=text, tokens=list(tokens), logprobs=list(logprobs)) for _ in range(n)]
+
+    def sample_many(
+        self, prompts: list[str], n: int, temperature: float
+    ) -> list[list[Completion]]:
+        return [self.sample(p, n, temperature) for p in prompts]

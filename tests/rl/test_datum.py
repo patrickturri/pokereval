@@ -13,15 +13,14 @@ def test_shapes_and_alignment():
     assert L == len(prompt) + len(completion) - 1  # full[:-1]
 
     tgt = d.loss_fn_inputs["target_tokens"].tolist()
-    w = d.loss_fn_inputs["weights"].tolist()
     adv = d.loss_fn_inputs["advantages"].tolist()
     lp = d.loss_fn_inputs["logprobs"].tolist()
-    assert len(tgt) == len(w) == len(adv) == len(lp) == L
+    assert len(tgt) == len(adv) == len(lp) == L
+    assert "weights" not in d.loss_fn_inputs  # importance_sampling has no weights arg
 
     # full = [10,11,12,20,21]; target = full[1:] = [11,12,20,21]
     assert tgt == [11, 12, 20, 21]
-    # completion-target positions are the last 2
-    assert w == [0.0, 0.0, 1.0, 1.0]
+    # completion-target positions are the last 2 (prompt positions masked via adv=0)
     assert adv == [0.0, 0.0, 2.0, 2.0]
     assert lp == pytest.approx([0.0, 0.0, -0.5, -0.7], abs=1e-6)  # float32 storage
 

@@ -16,12 +16,14 @@ class EvalReport:
 
 
 def greedy_choices(variant: GameVariant, spots, sampler: SamplingClient) -> dict[str, int]:
+    prompts = [render_state(s.state) for s in spots]
+    batches = sampler.sample_many(prompts, n=1, temperature=0.0)
     choices: dict[str, int] = {}
-    for spot in spots:
-        prompt = render_state(spot.state)
-        comp = sampler.sample(prompt, n=1, temperature=0.0)[0]
+    for spot, comps in zip(spots, batches):
+        if not comps:
+            continue
         try:
-            dec = parse_decision(comp.text, spot.state.legal_actions)
+            dec = parse_decision(comps[0].text, spot.state.legal_actions)
         except ParseError:
             continue
         os_id = spot.state.meta.get("os_legal", {}).get(dec.action.value)
@@ -35,12 +37,12 @@ def evaluate_policy(variant: GameVariant, all_spots, eval_spots, sampler: Sampli
     choices = greedy_choices(variant, all_spots, sampler)
     expl = exploitability_of_choices(variant, choices)
 
+    prompts = [render_state(s.state) for s in eval_spots]
+    batches = sampler.sample_many(prompts, n=1, temperature=0.0)
     nash_sum = 0.0
     exact = 0
-    for spot in eval_spots:
-        prompt = render_state(spot.state)
-        comp = sampler.sample(prompt, n=1, temperature=0.0)[0]
-        r, _ = spot_reward(spot, comp.text)
+    for spot, comps in zip(eval_spots, batches):
+        r, _ = spot_reward(spot, comps[0].text) if comps else (0.0, None)
         nash_sum += r
         if spot.nash_action_probs and r == max(spot.nash_action_probs.values()):
             exact += 1

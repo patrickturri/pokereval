@@ -14,6 +14,7 @@ openspiel = ["open_spiel"]
 llm = ["anthropic", "openai"]
 holdem = ["pokerkit"]
 dev = ["pytest>=8.0"]
+rl = ["tinker>=0.22", "verifiers>=0.1", "wandb"]
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/pokereval"]

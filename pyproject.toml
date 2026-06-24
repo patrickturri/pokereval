@@ -13,8 +13,9 @@ dependencies = ["pydantic>=2.6"]
 openspiel = ["open_spiel"]
 llm = ["anthropic", "openai"]
 holdem = ["pokerkit"]
-dev = ["pytest>=8.0"]
+dev = ["pytest>=8.0", "fastapi", "httpx"]
 rl = ["tinker>=0.22", "verifiers>=0.1", "wandb"]
+demo = ["fastapi", "uvicorn"]
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/pokereval"]
@@ -24,4 +25,5 @@ pythonpath = ["src"]
 markers = [
     "openspiel: requires the open_spiel package",
     "tinker: requires a live Tinker account",
+    "demo: requires the demo extras (fastapi, httpx)",
 ]

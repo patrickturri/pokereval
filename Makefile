@@ -1,4 +1,4 @@
-.PHONY: install test test-fast leaderboard leaderboard-json synth rl-smoke rl-train selfplay-smoke selfplay-train clean
+.PHONY: install test test-fast leaderboard leaderboard-json synth rl-smoke rl-train selfplay-smoke selfplay-train demo demo-build clean
 
 # Editable install with all extras (OpenSpiel, model SDKs).
 install:
@@ -57,6 +57,15 @@ selfplay-smoke:
 
 selfplay-train:
 	python -m pokereval.cli rl-selfplay --variant leduc --preset real --live --wandb
+
+# Phase 3 demo: serve the Phase-2 finding as a local web app (offline, no keys).
+# First run computes the CFR analysis and caches it; subsequent runs are instant.
+demo:
+	python -m pokereval.cli demo --port 8000
+
+# Force-recompute the cached solver analysis (e.g. after solver changes).
+demo-build:
+	python -m pokereval.cli demo --rebuild --port 8000
 
 clean:
 	find . -type d -name __pycache__ -prune -exec rm -rf {} +

@@ -4,8 +4,9 @@ A poker testbed for frontier-model research engineering.
 
 > End-to-end RL research pipeline that evaluates and improves LLM poker reasoning —
 > a `verifiers`-compatible environment, a verifiable/unverifiable eval suite, a
-> synthetic adversarial-data flywheel, an RLVR training run on Tinker, and a
-> memory-equipped agent served behind a playable demo.
+> synthetic adversarial-data flywheel, an RLVR training run on Tinker, an
+> oracle-free self-play harness, and a credential-free web demo that reproduces
+> the headline finding live.
 
 ## Status
 
@@ -15,6 +16,13 @@ A poker testbed for frontier-model research engineering.
 ✅ **Phase 2** (synthetic-data flywheel + RLVR on Tinker) — pipeline built,
 offline-tested, and **run live** (LoRA fine-tune of `Qwen/Qwen3.5-4B`).
 [`docs/phase2-findings.md`](docs/phase2-findings.md)
+
+🟡 **Phase 3** (self-play + demo) — oracle-free self-play RL harness built and
+offline-validated (`src/pokereval/rl/selfplay/`, chips-at-showdown reward,
+frozen-snapshot opponent, deal-conditioned GRPO), plus a **credential-free web
+demo** (`make demo`) that recomputes the collapse live. The live self-play
+*training* run — the one expected to drive exploitability back down — is gated on
+Tinker funds, not on code.
 
 > **Headline result — a reproducible negative finding.** Single-step RLVR against
 > a per-decision Nash oracle *raised* the model's per-decision agreement with the
@@ -32,6 +40,7 @@ offline-tested, and **run live** (LoRA fine-tune of `Qwen/Qwen3.5-4B`).
 make install          # editable install (OpenSpiel + model SDKs)
 make test             # full test suite
 make leaderboard      # credential-free baseline leaderboard, all variants
+make demo             # serve the finding as a local web app → http://localhost:8000
 ```
 
 Run a real frontier model (needs `ANTHROPIC_API_KEY`):
@@ -102,12 +111,27 @@ test suite.
 2. ✅ **Synthetic data flywheel + RLVR** — solver-labeled spot generation, RLVR
    LoRA fine-tune of `Qwen/Qwen3.5-4B` on Tinker, exploitability evaluation.
    Outcome: a reproducible mode-collapse / reward-misspecification finding (above).
-3. 🔭 **Self-play + agent harness + demo** — the principled fix to Phase 2:
-   episodic self-play (chips-at-showdown reward, no oracle) where mixing emerges;
-   plus a playable web UI showing model vs solver.
+3. 🟡 **Self-play + demo** — the principled fix to Phase 2: episodic self-play
+   (chips-at-showdown reward, no oracle) where mixing can emerge. The harness is
+   built and offline-validated; the live training run is gated on Tinker funds.
+   Ships now: a credential-free web demo (`make demo`) that reconstructs the
+   collapsed policy from the solver and reproduces its 1.75 exploitability live,
+   then shows — decision by decision — where committing to one action departs
+   from the mixed equilibrium.
+
+### Demo (Phase 3)
+
+```bash
+make demo            # → http://localhost:8000  (offline; no API keys, no Tinker)
+```
+
+A self-contained FastAPI app (no node build): solver Nash mix vs. the collapsed
+RLVR policy across Leduc's mixed decision nodes, alongside the real recorded
+base-vs-RLVR metrics. The first run computes the CFR analysis and caches it; the
+committed cache makes subsequent starts instant.
 
 ## Stack
 
 OpenSpiel (Kuhn/Leduc + CFR + exploitability) · PokerKit (No-Limit Hold'em) ·
 `verifiers` (Prime Intellect) · Tinker (LoRA RL) · `Qwen/Qwen3.5-4B` ·
-Weights & Biases · FastAPI · Next.js
+Weights & Biases · FastAPI (self-contained web demo)

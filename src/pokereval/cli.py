@@ -164,6 +164,14 @@ def main(argv: list[str] | None = None) -> int:
     sp.add_argument("--lr", type=float, default=None)
     sp.add_argument("--temperature", type=float, default=None)
 
+    demo = sub.add_parser(
+        "demo", help="Serve the Phase-2 finding as a local web demo (offline, no keys)."
+    )
+    demo.add_argument("--host", default="127.0.0.1")
+    demo.add_argument("--port", type=int, default=8000)
+    demo.add_argument("--iterations", type=int, default=2000, help="CFR iterations when (re)building.")
+    demo.add_argument("--rebuild", action="store_true", help="Recompute the cached solver analysis.")
+
     args = parser.parse_args(argv)
     if args.cmd == "synth":
         return _cmd_synth(args)
@@ -171,6 +179,8 @@ def main(argv: list[str] | None = None) -> int:
         return _cmd_rl_train(args)
     if args.cmd == "rl-selfplay":
         return _cmd_rl_selfplay(args)
+    if args.cmd == "demo":
+        return _cmd_demo(args)
     return _cmd_run(args, parser)
 
 
@@ -346,6 +356,23 @@ def _cmd_rl_selfplay(args) -> int:
         "after": dataclasses.asdict(result.after) if result.after else None,
     }
     print(json.dumps(payload, indent=2))
+    return 0
+
+
+def _cmd_demo(args) -> int:
+    try:
+        import uvicorn
+    except ModuleNotFoundError:
+        print("[demo] needs the demo extras: pip install -e '.[demo,openspiel]'")
+        return 2
+    from .demo.server import create_app, load_or_build_analysis
+
+    if args.rebuild:
+        print(f"[demo] computing CFR analysis ({args.iterations} iters); cached after first run…")
+    analysis = load_or_build_analysis(rebuild=args.rebuild, iterations=args.iterations)
+    app = create_app(analysis)
+    print(f"[demo] serving the Phase-2 finding at http://{args.host}:{args.port}  (Ctrl-C to stop)")
+    uvicorn.run(app, host=args.host, port=args.port, log_level="warning")
     return 0
 
 

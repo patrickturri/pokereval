@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 import pyspiel
-from ..interface.types import Action, GameVariant
+from ..interface.types import Action, GameVariant, State
 
 _GAME_NAME = {GameVariant.KUHN: "kuhn_poker", GameVariant.LEDUC: "leduc_poker"}
 
@@ -106,3 +106,60 @@ def iter_nodes(variant: GameVariant):
             continue
         seen.add(node.info_key)
         yield node
+
+
+def build_state(
+    variant: GameVariant,
+    info_key: str,
+    os_legal: dict[str, int],
+) -> State:
+    """Build a rendered ``State`` from a pre-computed os_legal map.
+
+    Args:
+        variant: The game variant (KUHN or LEDUC).
+        info_key: The OpenSpiel information-state string for the acting player.
+        os_legal: Mapping of ``Action.value`` strings to OpenSpiel action ids.
+
+    Returns:
+        A fully-populated ``State`` with ``legal_actions`` derived from the keys
+        of ``os_legal``, ``info_state_key`` and ``hero_cards`` set to ``info_key``,
+        and the original ``os_legal`` map stored in ``meta``.
+    """
+    legal = [Action(v) for v in os_legal]
+    return State(
+        variant=variant,
+        hero_cards=[info_key],
+        pot=0.0,
+        history=info_key,
+        legal_actions=legal,
+        info_state_key=info_key,
+        meta={"os_legal": os_legal},
+    )
+
+
+def node_to_state(
+    variant: GameVariant,
+    os_state,
+) -> tuple[State, dict[str, int]]:
+    """Convert a live OpenSpiel decision node to a rendered ``State``.
+
+    Args:
+        variant: The game variant (KUHN or LEDUC).
+        os_state: A live OpenSpiel state that is not a chance or terminal node.
+
+    Returns:
+        A ``(State, os_legal)`` pair where ``os_legal`` maps ``Action.value``
+        strings to OpenSpiel action ids, mirroring the layout used by
+        ``iter_nodes`` / ``NodeInfo``.
+    """
+    player = os_state.current_player()
+    info_key = os_state.information_state_string(player)
+    labels: dict[int, str] = {
+        a: os_state.action_to_string(player, a) for a in os_state.legal_actions()
+    }
+    # In Leduc, 'Fold' only appears when there is a pending bet.
+    facing_bet = any(lbl.strip().lower() == "fold" for lbl in labels.values())
+    os_legal: dict[str, int] = {}
+    for a, lbl in labels.items():
+        os_legal[normalize_os_action(lbl, facing_bet).value] = a
+    return build_state(variant, info_key, os_legal), os_legal

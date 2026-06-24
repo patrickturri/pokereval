@@ -48,6 +48,7 @@ class Backend(Protocol):
     def encode(self, text: str) -> list[int]: ...
     def sampler(self) -> SamplingClient: ...
     def train_step(self, data: list, lr: float) -> dict: ...
+    def snapshot(self) -> SamplingClient: ...
 
 
 class FakeBackend:
@@ -56,6 +57,7 @@ class FakeBackend:
     def __init__(self, sampling_client: SamplingClient):
         self._sc = sampling_client
         self.calls: list[tuple[int, float]] = []
+        self.snapshot_calls = 0
 
     def encode(self, text: str) -> list[int]:
         return [ord(c) for c in text]
@@ -66,6 +68,12 @@ class FakeBackend:
     def train_step(self, data: list, lr: float) -> dict:
         self.calls.append((len(data), lr))
         return {"loss": 0.0}
+
+    def snapshot(self) -> SamplingClient:
+        """A frozen sampler. The mock policy is fixed, so this returns the same
+        client; the counter lets the self-play loop assert refresh cadence."""
+        self.snapshot_calls += 1
+        return self._sc
 
 
 class _TinkerSampler:
@@ -137,3 +145,9 @@ class TinkerBackend:
         self._train.forward_backward(data, loss_fn="importance_sampling").result()
         self._train.optim_step(tinker.AdamParams(learning_rate=lr)).result()
         return {"loss": float("nan")}
+
+    def snapshot(self) -> SamplingClient:
+        """Frozen opponent snapshot. ``sampler()`` already persists current
+        weights via save_weights_and_get_sampling_client, so the returned client
+        is bound to the weights at call time and unaffected by later train steps."""
+        return self.sampler()

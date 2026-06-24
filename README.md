@@ -57,7 +57,7 @@ rate, whole-policy **exploitability** (the headline metric — chips/hand a
 best-responder extracts; 0 = Nash), an optional LLM-judge reasoning score, and
 parse-error rate.
 
-### Synthetic data (Phase 2, in progress)
+### Synthetic data (Phase 2)
 
 Generate CFR/Nash-labeled spots tagged by failure mode (the spots where
 frontier models are predicted to deviate — mixed strategies, facing-a-bet

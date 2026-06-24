@@ -1,0 +1,1154 @@
+{
+  "variant": "leduc",
+  "n_info_states": 936,
+  "collapsed_exploitability": 1.75,
+  "nash_exploitability": 0.0,
+  "spots": [
+    {
+      "info_key": "[Observer: 1][Private: 2][Round 2][Player: 1][Pot: 22][Money: 87 91][Public: 1][Round1: 1 2 2 1][Round2: 1 2 2]",
+      "hero": "Q",
+      "board": "J",
+      "pot": 22,
+      "round_num": 2,
+      "legal_actions": [
+        "fold",
+        "call"
+      ],
+      "nash_probs": {
+        "fold": 0.5,
+        "call": 0.5
+      },
+      "collapsed_action": "fold",
+      "nash_prob_of_collapsed": 0.5,
+      "nash_mass_missed": 0.5,
+      "mixedness": 0.5,
+      "tags": [
+        "mixed",
+        "facing_bet"
+      ]
+    },
+    {
+      "info_key": "[Observer: 1][Private: 2][Round 2][Player: 1][Pot: 10][Money: 93 97][Public: 4][Round1: 1 2 1][Round2: 2]",
+      "hero": "Q",
+      "board": "K",
+      "pot": 10,
+      "round_num": 2,
+      "legal_actions": [
+        "fold",
+        "call",
+        "raise"
+      ],
+      "nash_probs": {
+        "fold": 0.508,
+        "call": 0.4826,
+        "raise": 0.0094
+      },
+      "collapsed_action": "fold",
+      "nash_prob_of_collapsed": 0.508,
+      "nash_mass_missed": 0.492,
+      "mixedness": 0.492,
+      "tags": [
+        "mixed",
+        "facing_bet"
+      ]
+    },
+    {
+      "info_key": "[Observer: 1][Private: 4][Round 2][Player: 1][Pot: 10][Money: 95 95][Public: 2][Round1: 2 2 1][Round2: 1]",
+      "hero": "K",
+      "board": "Q",
+      "pot": 10,
+      "round_num": 2,
+      "legal_actions": [
+        "check",
+        "raise"
+      ],
+      "nash_probs": {
+        "check": 0.5214,
+        "raise": 0.4786
+      },
+      "collapsed_action": "check",
+      "nash_prob_of_collapsed": 0.5214,
+      "nash_mass_missed": 0.4786,
+      "mixedness": 0.4786,
+      "tags": [
+        "mixed"
+      ]
+    },
+    {
+      "info_key": "[Observer: 0][Private: 2][Round 2][Player: 0][Pot: 2][Money: 99 99][Public: 4][Round1: 1 1][Round2: ]",
+      "hero": "Q",
+      "board": "K",
+      "pot": 2,
+      "round_num": 2,
+      "legal_actions": [
+        "check",
+        "raise"
+      ],
+      "nash_probs": {
+        "check": 0.5324,
+        "raise": 0.4676
+      },
+      "collapsed_action": "check",
+      "nash_prob_of_collapsed": 0.5324,
+      "nash_mass_missed": 0.4676,
+      "mixedness": 0.4676,
+      "tags": [
+        "mixed"
+      ]
+    },
+    {
+      "info_key": "[Observer: 0][Private: 4][Round 2][Player: 0][Pot: 22][Money: 91 87][Public: 1][Round1: 1 2 2 1][Round2: 2 2]",
+      "hero": "K",
+      "board": "J",
+      "pot": 22,
+      "round_num": 2,
+      "legal_actions": [
+        "fold",
+        "call"
+      ],
+      "nash_probs": {
+        "fold": 0.534,
+        "call": 0.466
+      },
+      "collapsed_action": "fold",
+      "nash_prob_of_collapsed": 0.534,
+      "nash_mass_missed": 0.466,
+      "mixedness": 0.466,
+      "tags": [
+        "mixed",
+        "facing_bet"
+      ]
+    },
+    {
+      "info_key": "[Observer: 1][Private: 4][Round 2][Player: 1][Pot: 14][Money: 91 95][Public: 2][Round1: 2 2 1][Round2: 2]",
+      "hero": "K",
+      "board": "Q",
+      "pot": 14,
+      "round_num": 2,
+      "legal_actions": [
+        "fold",
+        "call",
+        "raise"
+      ],
+      "nash_probs": {
+        "fold": 0.3651,
+        "call": 0.551,
+        "raise": 0.0839
+      },
+      "collapsed_action": "fold",
+      "nash_prob_of_collapsed": 0.3651,
+      "nash_mass_missed": 0.6349,
+      "mixedness": 0.449,
+      "tags": [
+        "mixed",
+        "facing_bet"
+      ]
+    },
+    {
+      "info_key": "[Observer: 0][Private: 2][Round 2][Player: 0][Pot: 10][Money: 97 93][Public: 4][Round1: 1 2 1][Round2: 1 2]",
+      "hero": "Q",
+      "board": "K",
+      "pot": 10,
+      "round_num": 2,
+      "legal_actions": [
+        "fold",
+        "call",
+        "raise"
+      ],
+      "nash_probs": {
+        "fold": 0.4461,
+        "call": 0.5529,
+        "raise": 0.001
+      },
+      "collapsed_action": "fold",
+      "nash_prob_of_collapsed": 0.4461,
+      "nash_mass_missed": 0.5539,
+      "mixedness": 0.4471,
+      "tags": [
+        "mixed",
+        "facing_bet"
+      ]
+    },
+    {
+      "info_key": "[Observer: 0][Private: 4][Round 2][Player: 0][Pot: 14][Money: 95 91][Public: 1][Round1: 1 1][Round2: 2 2]",
+      "hero": "K",
+      "board": "J",
+      "pot": 14,
+      "round_num": 2,
+      "legal_actions": [
+        "fold",
+        "call"
+      ],
+      "nash_probs": {
+        "fold": 0.4448,
+        "call": 0.5552
+      },
+      "collapsed_action": "fold",
+      "nash_prob_of_collapsed": 0.4448,
+      "nash_mass_missed": 0.5552,
+      "mixedness": 0.4448,
+      "tags": [
+        "mixed",
+        "facing_bet"
+      ]
+    },
+    {
+      "info_key": "[Observer: 1][Private: 1][Round 2][Player: 1][Pot: 6][Money: 97 97][Public: 2][Round1: 1 2 1][Round2: 1]",
+      "hero": "J",
+      "board": "Q",
+      "pot": 6,
+      "round_num": 2,
+      "legal_actions": [
+        "check",
+        "raise"
+      ],
+      "nash_probs": {
+        "check": 0.4442,
+        "raise": 0.5558
+      },
+      "collapsed_action": "check",
+      "nash_prob_of_collapsed": 0.4442,
+      "nash_mass_missed": 0.5558,
+      "mixedness": 0.4442,
+      "tags": [
+        "mixed"
+      ]
+    },
+    {
+      "info_key": "[Observer: 1][Private: 4][Round 2][Player: 1][Pot: 10][Money: 93 97][Public: 2][Round1: 1 2 1][Round2: 2]",
+      "hero": "K",
+      "board": "Q",
+      "pot": 10,
+      "round_num": 2,
+      "legal_actions": [
+        "fold",
+        "call",
+        "raise"
+      ],
+      "nash_probs": {
+        "fold": 0.5583,
+        "call": 0.4398,
+        "raise": 0.002
+      },
+      "collapsed_action": "fold",
+      "nash_prob_of_collapsed": 0.5583,
+      "nash_mass_missed": 0.4417,
+      "mixedness": 0.4417,
+      "tags": [
+        "mixed",
+        "facing_bet"
+      ]
+    },
+    {
+      "info_key": "[Observer: 1][Private: 4][Round 1][Player: 1][Pot: 4][Money: 97 99][Round1: 2][Round2: ]",
+      "hero": "K",
+      "board": "",
+      "pot": 4,
+      "round_num": 1,
+      "legal_actions": [
+        "fold",
+        "call",
+        "raise"
+      ],
+      "nash_probs": {
+        "fold": 0.0003,
+        "call": 0.4264,
+        "raise": 0.5732
+      },
+      "collapsed_action": "fold",
+      "nash_prob_of_collapsed": 0.0003,
+      "nash_mass_missed": 0.9997,
+      "mixedness": 0.4268,
+      "tags": [
+        "mixed",
+        "facing_bet"
+      ]
+    },
+    {
+      "info_key": "[Observer: 0][Private: 4][Round 2][Player: 0][Pot: 10][Money: 97 93][Public: 2][Round1: 1 2 1][Round2: 1 2]",
+      "hero": "K",
+      "board": "Q",
+      "pot": 10,
+      "round_num": 2,
+      "legal_actions": [
+        "fold",
+        "call",
+        "raise"
+      ],
+      "nash_probs": {
+        "fold": 0.4009,
+        "call": 0.5875,
+        "raise": 0.0116
+      },
+      "collapsed_action": "fold",
+      "nash_prob_of_collapsed": 0.4009,
+      "nash_mass_missed": 0.5991,
+      "mixedness": 0.4125,
+      "tags": [
+        "mixed",
+        "facing_bet"
+      ]
+    },
+    {
+      "info_key": "[Observer: 1][Private: 2][Round 2][Player: 1][Pot: 6][Money: 97 97][Public: 1][Round1: 1 2 1][Round2: 1]",
+      "hero": "Q",
+      "board": "J",
+      "pot": 6,
+      "round_num": 2,
+      "legal_actions": [
+        "check",
+        "raise"
+      ],
+      "nash_probs": {
+        "check": 0.6106,
+        "raise": 0.3894
+      },
+      "collapsed_action": "check",
+      "nash_prob_of_collapsed": 0.6106,
+      "nash_mass_missed": 0.3894,
+      "mixedness": 0.3894,
+      "tags": [
+        "mixed"
+      ]
+    },
+    {
+      "info_key": "[Observer: 1][Private: 4][Round 2][Player: 1][Pot: 22][Money: 87 91][Public: 2][Round1: 1 2 2 1][Round2: 1 2 2]",
+      "hero": "K",
+      "board": "Q",
+      "pot": 22,
+      "round_num": 2,
+      "legal_actions": [
+        "fold",
+        "call"
+      ],
+      "nash_probs": {
+        "fold": 0.6202,
+        "call": 0.3798
+      },
+      "collapsed_action": "fold",
+      "nash_prob_of_collapsed": 0.6202,
+      "nash_mass_missed": 0.3798,
+      "mixedness": 0.3798,
+      "tags": [
+        "mixed",
+        "facing_bet"
+      ]
+    },
+    {
+      "info_key": "[Observer: 0][Private: 0][Round 2][Player: 0][Pot: 10][Money: 97 93][Public: 4][Round1: 2 1][Round2: 1 2]",
+      "hero": "J",
+      "board": "K",
+      "pot": 10,
+      "round_num": 2,
+      "legal_actions": [
+        "fold",
+        "call",
+        "raise"
+      ],
+      "nash_probs": {
+        "fold": 0.6452,
+        "call": 0.0139,
+        "raise": 0.341
+      },
+      "collapsed_action": "fold",
+      "nash_prob_of_collapsed": 0.6452,
+      "nash_mass_missed": 0.3548,
+      "mixedness": 0.3548,
+      "tags": [
+        "mixed",
+        "facing_bet"
+      ]
+    },
+    {
+      "info_key": "[Observer: 1][Private: 1][Round 2][Player: 1][Pot: 6][Money: 97 97][Public: 4][Round1: 2 1][Round2: 1]",
+      "hero": "J",
+      "board": "K",
+      "pot": 6,
+      "round_num": 2,
+      "legal_actions": [
+        "check",
+        "raise"
+      ],
+      "nash_probs": {
+        "check": 0.6462,
+        "raise": 0.3538
+      },
+      "collapsed_action": "check",
+      "nash_prob_of_collapsed": 0.6462,
+      "nash_mass_missed": 0.3538,
+      "mixedness": 0.3538,
+      "tags": [
+        "mixed"
+      ]
+    },
+    {
+      "info_key": "[Observer: 1][Private: 2][Round 1][Player: 1][Pot: 4][Money: 97 99][Round1: 2][Round2: ]",
+      "hero": "Q",
+      "board": "",
+      "pot": 4,
+      "round_num": 1,
+      "legal_actions": [
+        "fold",
+        "call",
+        "raise"
+      ],
+      "nash_probs": {
+        "fold": 0.0057,
+        "call": 0.6556,
+        "raise": 0.3387
+      },
+      "collapsed_action": "fold",
+      "nash_prob_of_collapsed": 0.0057,
+      "nash_mass_missed": 0.9943,
+      "mixedness": 0.3444,
+      "tags": [
+        "mixed",
+        "facing_bet"
+      ]
+    },
+    {
+      "info_key": "[Observer: 1][Private: 4][Round 2][Player: 1][Pot: 14][Money: 91 95][Public: 2][Round1: 1 2 2 1][Round2: 2]",
+      "hero": "K",
+      "board": "Q",
+      "pot": 14,
+      "round_num": 2,
+      "legal_actions": [
+        "fold",
+        "call",
+        "raise"
+      ],
+      "nash_probs": {
+        "fold": 0.3224,
+        "call": 0.6744,
+        "raise": 0.0033
+      },
+      "collapsed_action": "fold",
+      "nash_prob_of_collapsed": 0.3224,
+      "nash_mass_missed": 0.6776,
+      "mixedness": 0.3256,
+      "tags": [
+        "mixed",
+        "facing_bet"
+      ]
+    },
+    {
+      "info_key": "[Observer: 0][Private: 4][Round 2][Player: 0][Pot: 14][Money: 95 91][Public: 2][Round1: 1 2 2 1][Round2: 1 2]",
+      "hero": "K",
+      "board": "Q",
+      "pot": 14,
+      "round_num": 2,
+      "legal_actions": [
+        "fold",
+        "call",
+        "raise"
+      ],
+      "nash_probs": {
+        "fold": 0.2983,
+        "call": 0.6761,
+        "raise": 0.0256
+      },
+      "collapsed_action": "fold",
+      "nash_prob_of_collapsed": 0.2983,
+      "nash_mass_missed": 0.7017,
+      "mixedness": 0.3239,
+      "tags": [
+        "mixed",
+        "facing_bet"
+      ]
+    },
+    {
+      "info_key": "[Observer: 1][Private: 4][Round 2][Player: 1][Pot: 6][Money: 95 99][Public: 2][Round1: 1 1][Round2: 2]",
+      "hero": "K",
+      "board": "Q",
+      "pot": 6,
+      "round_num": 2,
+      "legal_actions": [
+        "fold",
+        "call",
+        "raise"
+      ],
+      "nash_probs": {
+        "fold": 0.6792,
+        "call": 0.2808,
+        "raise": 0.0399
+      },
+      "collapsed_action": "fold",
+      "nash_prob_of_collapsed": 0.6792,
+      "nash_mass_missed": 0.3208,
+      "mixedness": 0.3208,
+      "tags": [
+        "mixed",
+        "facing_bet"
+      ]
+    },
+    {
+      "info_key": "[Observer: 1][Private: 2][Round 2][Player: 1][Pot: 22][Money: 87 91][Public: 1][Round1: 2 2 1][Round2: 1 2 2]",
+      "hero": "Q",
+      "board": "J",
+      "pot": 22,
+      "round_num": 2,
+      "legal_actions": [
+        "fold",
+        "call"
+      ],
+      "nash_probs": {
+        "fold": 0.3192,
+        "call": 0.6808
+      },
+      "collapsed_action": "fold",
+      "nash_prob_of_collapsed": 0.3192,
+      "nash_mass_missed": 0.6808,
+      "mixedness": 0.3192,
+      "tags": [
+        "mixed",
+        "facing_bet"
+      ]
+    },
+    {
+      "info_key": "[Observer: 0][Private: 4][Round 2][Player: 0][Pot: 22][Money: 91 87][Public: 2][Round1: 1 2 2 1][Round2: 2 2]",
+      "hero": "K",
+      "board": "Q",
+      "pot": 22,
+      "round_num": 2,
+      "legal_actions": [
+        "fold",
+        "call"
+      ],
+      "nash_probs": {
+        "fold": 0.6819,
+        "call": 0.3181
+      },
+      "collapsed_action": "fold",
+      "nash_prob_of_collapsed": 0.6819,
+      "nash_mass_missed": 0.3181,
+      "mixedness": 0.3181,
+      "tags": [
+        "mixed",
+        "facing_bet"
+      ]
+    },
+    {
+      "info_key": "[Observer: 0][Private: 4][Round 2][Player: 0][Pot: 10][Money: 95 95][Public: 2][Round1: 2 2 1][Round2: ]",
+      "hero": "K",
+      "board": "Q",
+      "pot": 10,
+      "round_num": 2,
+      "legal_actions": [
+        "check",
+        "raise"
+      ],
+      "nash_probs": {
+        "check": 0.3053,
+        "raise": 0.6947
+      },
+      "collapsed_action": "check",
+      "nash_prob_of_collapsed": 0.3053,
+      "nash_mass_missed": 0.6947,
+      "mixedness": 0.3053,
+      "tags": [
+        "mixed"
+      ]
+    },
+    {
+      "info_key": "[Observer: 1][Private: 1][Round 1][Player: 1][Pot: 2][Money: 99 99][Round1: 1][Round2: ]",
+      "hero": "J",
+      "board": "",
+      "pot": 2,
+      "round_num": 1,
+      "legal_actions": [
+        "check",
+        "raise"
+      ],
+      "nash_probs": {
+        "check": 0.7048,
+        "raise": 0.2952
+      },
+      "collapsed_action": "check",
+      "nash_prob_of_collapsed": 0.7048,
+      "nash_mass_missed": 0.2952,
+      "mixedness": 0.2952,
+      "tags": [
+        "mixed"
+      ]
+    },
+    {
+      "info_key": "[Observer: 1][Private: 2][Round 2][Player: 1][Pot: 14][Money: 91 95][Public: 4][Round1: 1 2 2 1][Round2: 2]",
+      "hero": "Q",
+      "board": "K",
+      "pot": 14,
+      "round_num": 2,
+      "legal_actions": [
+        "fold",
+        "call",
+        "raise"
+      ],
+      "nash_probs": {
+        "fold": 0.7105,
+        "call": 0.2868,
+        "raise": 0.0027
+      },
+      "collapsed_action": "fold",
+      "nash_prob_of_collapsed": 0.7105,
+      "nash_mass_missed": 0.2895,
+      "mixedness": 0.2895,
+      "tags": [
+        "mixed",
+        "facing_bet"
+      ]
+    },
+    {
+      "info_key": "[Observer: 1][Private: 2][Round 2][Player: 1][Pot: 6][Money: 95 99][Public: 4][Round1: 1 1][Round2: 2]",
+      "hero": "Q",
+      "board": "K",
+      "pot": 6,
+      "round_num": 2,
+      "legal_actions": [
+        "fold",
+        "call",
+        "raise"
+      ],
+      "nash_probs": {
+        "fold": 0.2803,
+        "call": 0.714,
+        "raise": 0.0058
+      },
+      "collapsed_action": "fold",
+      "nash_prob_of_collapsed": 0.2803,
+      "nash_mass_missed": 0.7197,
+      "mixedness": 0.286,
+      "tags": [
+        "mixed",
+        "facing_bet"
+      ]
+    },
+    {
+      "info_key": "[Observer: 0][Private: 0][Round 2][Player: 0][Pot: 6][Money: 99 95][Public: 1][Round1: 1 1][Round2: 1 2]",
+      "hero": "J",
+      "board": "J",
+      "pot": 6,
+      "round_num": 2,
+      "legal_actions": [
+        "fold",
+        "call",
+        "raise"
+      ],
+      "nash_probs": {
+        "fold": 0.0,
+        "call": 0.2857,
+        "raise": 0.7142
+      },
+      "collapsed_action": "fold",
+      "nash_prob_of_collapsed": 0.0,
+      "nash_mass_missed": 1.0,
+      "mixedness": 0.2858,
+      "tags": [
+        "mixed",
+        "facing_bet"
+      ]
+    },
+    {
+      "info_key": "[Observer: 1][Private: 4][Round 2][Player: 1][Pot: 10][Money: 93 97][Public: 1][Round1: 2 1][Round2: 2]",
+      "hero": "K",
+      "board": "J",
+      "pot": 10,
+      "round_num": 2,
+      "legal_actions": [
+        "fold",
+        "call",
+        "raise"
+      ],
+      "nash_probs": {
+        "fold": 0.2308,
+        "call": 0.7182,
+        "raise": 0.0509
+      },
+      "collapsed_action": "fold",
+      "nash_prob_of_collapsed": 0.2308,
+      "nash_mass_missed": 0.7692,
+      "mixedness": 0.2818,
+      "tags": [
+        "mixed",
+        "facing_bet"
+      ]
+    },
+    {
+      "info_key": "[Observer: 1][Private: 4][Round 2][Player: 1][Pot: 6][Money: 95 99][Public: 5][Round1: 1 1][Round2: 2]",
+      "hero": "K",
+      "board": "K",
+      "pot": 6,
+      "round_num": 2,
+      "legal_actions": [
+        "fold",
+        "call",
+        "raise"
+      ],
+      "nash_probs": {
+        "fold": 0.106,
+        "call": 0.1751,
+        "raise": 0.7189
+      },
+      "collapsed_action": "fold",
+      "nash_prob_of_collapsed": 0.106,
+      "nash_mass_missed": 0.894,
+      "mixedness": 0.2811,
+      "tags": [
+        "mixed",
+        "facing_bet"
+      ]
+    },
+    {
+      "info_key": "[Observer: 1][Private: 1][Round 2][Player: 1][Pot: 14][Money: 91 95][Public: 4][Round1: 2 2 1][Round2: 2]",
+      "hero": "J",
+      "board": "K",
+      "pot": 14,
+      "round_num": 2,
+      "legal_actions": [
+        "fold",
+        "call",
+        "raise"
+      ],
+      "nash_probs": {
+        "fold": 0.7282,
+        "call": 0.002,
+        "raise": 0.2698
+      },
+      "collapsed_action": "fold",
+      "nash_prob_of_collapsed": 0.7282,
+      "nash_mass_missed": 0.2718,
+      "mixedness": 0.2718,
+      "tags": [
+        "mixed",
+        "facing_bet"
+      ]
+    },
+    {
+      "info_key": "[Observer: 0][Private: 0][Round 2][Player: 0][Pot: 14][Money: 95 91][Public: 4][Round1: 2 2 1][Round2: 1 2]",
+      "hero": "J",
+      "board": "K",
+      "pot": 14,
+      "round_num": 2,
+      "legal_actions": [
+        "fold",
+        "call",
+        "raise"
+      ],
+      "nash_probs": {
+        "fold": 0.2708,
+        "call": 0.0006,
+        "raise": 0.7287
+      },
+      "collapsed_action": "fold",
+      "nash_prob_of_collapsed": 0.2708,
+      "nash_mass_missed": 0.7292,
+      "mixedness": 0.2713,
+      "tags": [
+        "mixed",
+        "facing_bet"
+      ]
+    },
+    {
+      "info_key": "[Observer: 1][Private: 4][Round 2][Player: 1][Pot: 10][Money: 93 97][Public: 1][Round1: 1 2 1][Round2: 2]",
+      "hero": "K",
+      "board": "J",
+      "pot": 10,
+      "round_num": 2,
+      "legal_actions": [
+        "fold",
+        "call",
+        "raise"
+      ],
+      "nash_probs": {
+        "fold": 0.2693,
+        "call": 0.7288,
+        "raise": 0.0018
+      },
+      "collapsed_action": "fold",
+      "nash_prob_of_collapsed": 0.2693,
+      "nash_mass_missed": 0.7307,
+      "mixedness": 0.2712,
+      "tags": [
+        "mixed",
+        "facing_bet"
+      ]
+    },
+    {
+      "info_key": "[Observer: 0][Private: 2][Round 2][Player: 0][Pot: 22][Money: 91 87][Public: 1][Round1: 2 2 1][Round2: 2 2]",
+      "hero": "Q",
+      "board": "J",
+      "pot": 22,
+      "round_num": 2,
+      "legal_actions": [
+        "fold",
+        "call"
+      ],
+      "nash_probs": {
+        "fold": 0.7484,
+        "call": 0.2516
+      },
+      "collapsed_action": "fold",
+      "nash_prob_of_collapsed": 0.7484,
+      "nash_mass_missed": 0.2516,
+      "mixedness": 0.2516,
+      "tags": [
+        "mixed",
+        "facing_bet"
+      ]
+    },
+    {
+      "info_key": "[Observer: 1][Private: 2][Round 2][Player: 1][Pot: 10][Money: 95 95][Public: 4][Round1: 1 2 2 1][Round2: 1]",
+      "hero": "Q",
+      "board": "K",
+      "pot": 10,
+      "round_num": 2,
+      "legal_actions": [
+        "check",
+        "raise"
+      ],
+      "nash_probs": {
+        "check": 0.7489,
+        "raise": 0.2511
+      },
+      "collapsed_action": "check",
+      "nash_prob_of_collapsed": 0.7489,
+      "nash_mass_missed": 0.2511,
+      "mixedness": 0.2511,
+      "tags": [
+        "mixed"
+      ]
+    },
+    {
+      "info_key": "[Observer: 0][Private: 0][Round 2][Player: 0][Pot: 6][Money: 97 97][Public: 1][Round1: 2 1][Round2: ]",
+      "hero": "J",
+      "board": "J",
+      "pot": 6,
+      "round_num": 2,
+      "legal_actions": [
+        "check",
+        "raise"
+      ],
+      "nash_probs": {
+        "check": 0.2471,
+        "raise": 0.7529
+      },
+      "collapsed_action": "check",
+      "nash_prob_of_collapsed": 0.2471,
+      "nash_mass_missed": 0.7529,
+      "mixedness": 0.2471,
+      "tags": [
+        "mixed"
+      ]
+    },
+    {
+      "info_key": "[Observer: 1][Private: 4][Round 2][Player: 1][Pot: 18][Money: 89 93][Public: 1][Round1: 2 1][Round2: 1 2 2]",
+      "hero": "K",
+      "board": "J",
+      "pot": 18,
+      "round_num": 2,
+      "legal_actions": [
+        "fold",
+        "call"
+      ],
+      "nash_probs": {
+        "fold": 0.2453,
+        "call": 0.7547
+      },
+      "collapsed_action": "fold",
+      "nash_prob_of_collapsed": 0.2453,
+      "nash_mass_missed": 0.7547,
+      "mixedness": 0.2453,
+      "tags": [
+        "mixed",
+        "facing_bet"
+      ]
+    },
+    {
+      "info_key": "[Observer: 1][Private: 4][Round 2][Player: 1][Pot: 14][Money: 91 95][Public: 5][Round1: 1 2 2 1][Round2: 2]",
+      "hero": "K",
+      "board": "K",
+      "pot": 14,
+      "round_num": 2,
+      "legal_actions": [
+        "fold",
+        "call",
+        "raise"
+      ],
+      "nash_probs": {
+        "fold": 0.0,
+        "call": 0.231,
+        "raise": 0.769
+      },
+      "collapsed_action": "fold",
+      "nash_prob_of_collapsed": 0.0,
+      "nash_mass_missed": 1.0,
+      "mixedness": 0.231,
+      "tags": [
+        "mixed",
+        "facing_bet"
+      ]
+    },
+    {
+      "info_key": "[Observer: 0][Private: 0][Round 2][Player: 0][Pot: 14][Money: 95 91][Public: 4][Round1: 1 2 2 1][Round2: 1 2]",
+      "hero": "J",
+      "board": "K",
+      "pot": 14,
+      "round_num": 2,
+      "legal_actions": [
+        "fold",
+        "call",
+        "raise"
+      ],
+      "nash_probs": {
+        "fold": 0.1054,
+        "call": 0.1054,
+        "raise": 0.7892
+      },
+      "collapsed_action": "fold",
+      "nash_prob_of_collapsed": 0.1054,
+      "nash_mass_missed": 0.8946,
+      "mixedness": 0.2108,
+      "tags": [
+        "mixed",
+        "facing_bet"
+      ]
+    },
+    {
+      "info_key": "[Observer: 1][Private: 0][Round 2][Player: 1][Pot: 14][Money: 91 95][Public: 1][Round1: 1 2 2 1][Round2: 2]",
+      "hero": "J",
+      "board": "J",
+      "pot": 14,
+      "round_num": 2,
+      "legal_actions": [
+        "fold",
+        "call",
+        "raise"
+      ],
+      "nash_probs": {
+        "fold": 0.0001,
+        "call": 0.2041,
+        "raise": 0.7958
+      },
+      "collapsed_action": "fold",
+      "nash_prob_of_collapsed": 0.0001,
+      "nash_mass_missed": 0.9999,
+      "mixedness": 0.2042,
+      "tags": [
+        "mixed",
+        "facing_bet"
+      ]
+    },
+    {
+      "info_key": "[Observer: 0][Private: 2][Round 1][Player: 0][Pot: 4][Money: 99 97][Round1: 1 2][Round2: ]",
+      "hero": "Q",
+      "board": "",
+      "pot": 4,
+      "round_num": 1,
+      "legal_actions": [
+        "fold",
+        "call",
+        "raise"
+      ],
+      "nash_probs": {
+        "fold": 0.0149,
+        "call": 0.806,
+        "raise": 0.1791
+      },
+      "collapsed_action": "fold",
+      "nash_prob_of_collapsed": 0.0149,
+      "nash_mass_missed": 0.9851,
+      "mixedness": 0.194,
+      "tags": [
+        "mixed",
+        "facing_bet"
+      ]
+    },
+    {
+      "info_key": "[Observer: 0][Private: 2][Round 2][Player: 0][Pot: 18][Money: 93 89][Public: 4][Round1: 2 1][Round2: 2 2]",
+      "hero": "Q",
+      "board": "K",
+      "pot": 18,
+      "round_num": 2,
+      "legal_actions": [
+        "fold",
+        "call"
+      ],
+      "nash_probs": {
+        "fold": 0.8062,
+        "call": 0.1938
+      },
+      "collapsed_action": "fold",
+      "nash_prob_of_collapsed": 0.8062,
+      "nash_mass_missed": 0.1938,
+      "mixedness": 0.1938,
+      "tags": [
+        "mixed",
+        "facing_bet"
+      ]
+    },
+    {
+      "info_key": "[Observer: 0][Private: 0][Round 2][Player: 0][Pot: 2][Money: 99 99][Public: 2][Round1: 1 1][Round2: ]",
+      "hero": "J",
+      "board": "Q",
+      "pot": 2,
+      "round_num": 2,
+      "legal_actions": [
+        "check",
+        "raise"
+      ],
+      "nash_probs": {
+        "check": 0.8064,
+        "raise": 0.1936
+      },
+      "collapsed_action": "check",
+      "nash_prob_of_collapsed": 0.8064,
+      "nash_mass_missed": 0.1936,
+      "mixedness": 0.1936,
+      "tags": [
+        "mixed"
+      ]
+    },
+    {
+      "info_key": "[Observer: 1][Private: 1][Round 1][Player: 1][Pot: 4][Money: 97 99][Round1: 2][Round2: ]",
+      "hero": "J",
+      "board": "",
+      "pot": 4,
+      "round_num": 1,
+      "legal_actions": [
+        "fold",
+        "call",
+        "raise"
+      ],
+      "nash_probs": {
+        "fold": 0.8073,
+        "call": 0.1366,
+        "raise": 0.0561
+      },
+      "collapsed_action": "fold",
+      "nash_prob_of_collapsed": 0.8073,
+      "nash_mass_missed": 0.1927,
+      "mixedness": 0.1927,
+      "tags": [
+        "mixed",
+        "facing_bet"
+      ]
+    },
+    {
+      "info_key": "[Observer: 1][Private: 1][Round 2][Player: 1][Pot: 14][Money: 91 95][Public: 2][Round1: 1 2 2 1][Round2: 2]",
+      "hero": "J",
+      "board": "Q",
+      "pot": 14,
+      "round_num": 2,
+      "legal_actions": [
+        "fold",
+        "call",
+        "raise"
+      ],
+      "nash_probs": {
+        "fold": 0.8139,
+        "call": 0.0004,
+        "raise": 0.1857
+      },
+      "collapsed_action": "fold",
+      "nash_prob_of_collapsed": 0.8139,
+      "nash_mass_missed": 0.1861,
+      "mixedness": 0.1861,
+      "tags": [
+        "mixed",
+        "facing_bet"
+      ]
+    },
+    {
+      "info_key": "[Observer: 0][Private: 4][Round 2][Player: 0][Pot: 6][Money: 97 97][Public: 5][Round1: 2 1][Round2: ]",
+      "hero": "K",
+      "board": "K",
+      "pot": 6,
+      "round_num": 2,
+      "legal_actions": [
+        "check",
+        "raise"
+      ],
+      "nash_probs": {
+        "check": 0.1818,
+        "raise": 0.8182
+      },
+      "collapsed_action": "check",
+      "nash_prob_of_collapsed": 0.1818,
+      "nash_mass_missed": 0.8182,
+      "mixedness": 0.1818,
+      "tags": [
+        "mixed"
+      ]
+    },
+    {
+      "info_key": "[Observer: 1][Private: 4][Round 2][Player: 1][Pot: 14][Money: 91 95][Public: 1][Round1: 1 2 2 1][Round2: 2]",
+      "hero": "K",
+      "board": "J",
+      "pot": 14,
+      "round_num": 2,
+      "legal_actions": [
+        "fold",
+        "call",
+        "raise"
+      ],
+      "nash_probs": {
+        "fold": 0.1319,
+        "call": 0.8321,
+        "raise": 0.0359
+      },
+      "collapsed_action": "fold",
+      "nash_prob_of_collapsed": 0.1319,
+      "nash_mass_missed": 0.8681,
+      "mixedness": 0.1679,
+      "tags": [
+        "mixed",
+        "facing_bet"
+      ]
+    },
+    {
+      "info_key": "[Observer: 1][Private: 2][Round 1][Player: 1][Pot: 2][Money: 99 99][Round1: 1][Round2: ]",
+      "hero": "Q",
+      "board": "",
+      "pot": 2,
+      "round_num": 1,
+      "legal_actions": [
+        "check",
+        "raise"
+      ],
+      "nash_probs": {
+        "check": 0.1567,
+        "raise": 0.8433
+      },
+      "collapsed_action": "check",
+      "nash_prob_of_collapsed": 0.1567,
+      "nash_mass_missed": 0.8433,
+      "mixedness": 0.1567,
+      "tags": [
+        "mixed"
+      ]
+    },
+    {
+      "info_key": "[Observer: 1][Private: 4][Round 2][Player: 1][Pot: 6][Money: 95 99][Public: 1][Round1: 1 1][Round2: 2]",
+      "hero": "K",
+      "board": "J",
+      "pot": 6,
+      "round_num": 2,
+      "legal_actions": [
+        "fold",
+        "call",
+        "raise"
+      ],
+      "nash_probs": {
+        "fold": 0.8541,
+        "call": 0.1106,
+        "raise": 0.0353
+      },
+      "collapsed_action": "fold",
+      "nash_prob_of_collapsed": 0.8541,
+      "nash_mass_missed": 0.1459,
+      "mixedness": 0.1459,
+      "tags": [
+        "mixed",
+        "facing_bet"
+      ]
+    }
+  ]
+}

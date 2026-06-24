@@ -34,3 +34,6 @@ data/synth/
 .DS_Store
 .idea/
 .vscode/
+
+# Internal planning docs (not published)
+docs/superpowers/

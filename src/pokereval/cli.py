@@ -150,11 +150,27 @@ def main(argv: list[str] | None = None) -> int:
     rl.add_argument("--reward-mode", choices=["kl_nash", "nash_prob"], default=None)
     rl.add_argument("--eval-samples", type=int, default=None)
 
+    sp = sub.add_parser("rl-selfplay", help="Self-play RL on Leduc via Tinker (Phase 3).")
+    sp.add_argument("--variant", choices=["kuhn", "leduc"], default="leduc")
+    sp.add_argument("--preset", choices=["smoke", "real"], default="smoke")
+    sp.add_argument("--iterations", type=int, default=2000, help="CFR iterations for eval spots.")
+    sp.add_argument("--live", action="store_true", help="Use the live Tinker backend.")
+    sp.add_argument("--base-model", default=None)
+    sp.add_argument("--wandb", action="store_true")
+    sp.add_argument("--steps", type=int, default=None)
+    sp.add_argument("--deals", type=int, default=None)
+    sp.add_argument("--hands", type=int, default=None)
+    sp.add_argument("--refresh-every", type=int, default=None)
+    sp.add_argument("--lr", type=float, default=None)
+    sp.add_argument("--temperature", type=float, default=None)
+
     args = parser.parse_args(argv)
     if args.cmd == "synth":
         return _cmd_synth(args)
     if args.cmd == "rl-train":
         return _cmd_rl_train(args)
+    if args.cmd == "rl-selfplay":
+        return _cmd_rl_selfplay(args)
     return _cmd_run(args, parser)
 
 
@@ -255,6 +271,77 @@ def _cmd_rl_train(args) -> int:
         "variant": args.variant,
         "live": args.live,
         "step_rewards": result.step_rewards,
+        "before": dataclasses.asdict(result.before) if result.before else None,
+        "after": dataclasses.asdict(result.after) if result.after else None,
+    }
+    print(json.dumps(payload, indent=2))
+    return 0
+
+
+def _cmd_rl_selfplay(args) -> int:
+    import json
+    import dataclasses
+    from .interface.types import GameVariant
+    from .synth.generator import build_labeled_spots
+    from .rl.config import get_preset
+    from .rl.dataset import split_spots
+    from .rl.selfplay.train import selfplay_train
+
+    cfg = get_preset(args.preset)
+    overrides = {"variant": args.variant}
+    if args.base_model:
+        overrides["base_model"] = args.base_model
+    if args.steps is not None:
+        overrides["num_steps"] = args.steps
+    if args.deals is not None:
+        overrides["deals_per_step"] = args.deals
+    if args.hands is not None:
+        overrides["hands_per_deal"] = args.hands
+    if args.refresh_every is not None:
+        overrides["opponent_refresh_every"] = args.refresh_every
+    if args.lr is not None:
+        overrides["learning_rate"] = args.lr
+    if args.temperature is not None:
+        overrides["temperature"] = args.temperature
+    cfg = dataclasses.replace(cfg, **overrides)
+
+    variant = GameVariant(args.variant)
+    spots = build_labeled_spots(variant, args.iterations)
+    train_spots, eval_spots = split_spots(spots, cfg.eval_split, cfg.seed)
+    all_spots = list(train_spots) + list(eval_spots)
+
+    logger = None
+    if args.wandb:
+        try:
+            import wandb
+
+            wandb.init(project="pokereval-rlvr-selfplay", config=dataclasses.asdict(cfg))
+            logger = lambda d: wandb.log(d)  # noqa: E731
+        except Exception as e:  # noqa: BLE001
+            print(f"[wandb disabled: {e}]")
+
+    if args.live:
+        if not _preflight_billing():
+            print(
+                "[abort] Tinker is unreachable or billing-blocked (HTTP 402). "
+                "Add funds and retry. (Skipping to avoid a ~1h silent retry loop.)"
+            )
+            return 2
+        from .rl.backend import TinkerBackend
+
+        backend = TinkerBackend(cfg)
+    else:
+        from .rl.backend import FakeBackend
+        from .rl.sampler import MockSamplingClient
+
+        backend = FakeBackend(MockSamplingClient(action_for=_first_legal_action))
+
+    result = selfplay_train(cfg, all_spots, eval_spots, backend, logger=logger)
+    payload = {
+        "preset": args.preset,
+        "variant": args.variant,
+        "live": args.live,
+        "step_returns": result.step_returns,
         "before": dataclasses.asdict(result.before) if result.before else None,
         "after": dataclasses.asdict(result.after) if result.after else None,
     }

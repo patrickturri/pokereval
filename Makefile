@@ -1,4 +1,4 @@
-.PHONY: install test test-fast leaderboard leaderboard-json synth rl-smoke rl-train clean
+.PHONY: install test test-fast leaderboard leaderboard-json synth rl-smoke rl-train selfplay-smoke selfplay-train clean
 
 # Editable install with all extras (OpenSpiel, model SDKs).
 install:
@@ -50,6 +50,13 @@ rl-smoke:
 
 rl-train:
 	python -m pokereval.cli rl-train --variant leduc --preset real --live --wandb
+
+# Phase 3 self-play. selfplay-smoke runs fully offline (mock backend, no account).
+selfplay-smoke:
+	python -m pokereval.cli rl-selfplay --variant leduc --preset smoke
+
+selfplay-train:
+	python -m pokereval.cli rl-selfplay --variant leduc --preset real --live --wandb
 
 clean:
 	find . -type d -name __pycache__ -prune -exec rm -rf {} +

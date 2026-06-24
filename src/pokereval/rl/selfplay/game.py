@@ -1,10 +1,8 @@
 """Leduc hand stepper: deal sampling and fixed-deal replay."""
 
 import random
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from typing import Callable
-
-from ...engine.kuhn_leduc import load_game  # noqa: F401 — available for callers
 
 
 @dataclass
@@ -15,7 +13,7 @@ class Deal:
     OpenSpiel chance nodes: [p0_private, p1_private, public_board].
     """
 
-    chance_actions: list[int] = field(default_factory=list)
+    chance_actions: list[int]
 
 
 def _passive_action(state) -> int:

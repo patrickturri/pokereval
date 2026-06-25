@@ -164,6 +164,19 @@ def main(argv: list[str] | None = None) -> int:
     sp.add_argument("--lr", type=float, default=None)
     sp.add_argument("--temperature", type=float, default=None)
 
+    md = sub.add_parser(
+        "metric-divergence",
+        help="Credential-free: action-match vs. exploitability across a policy panel.",
+    )
+    md.add_argument("--variant", choices=["kuhn", "leduc"], default="leduc")
+    md.add_argument("--iterations", type=int, default=2000)
+    md.add_argument(
+        "--format",
+        choices=["markdown", "json"],
+        default="markdown",
+        help="Output format. 'json' emits the raw panel rows for archival.",
+    )
+
     demo = sub.add_parser(
         "demo", help="Serve the Phase-2 finding as a local web demo (offline, no keys)."
     )
@@ -181,6 +194,8 @@ def main(argv: list[str] | None = None) -> int:
         return _cmd_rl_selfplay(args)
     if args.cmd == "demo":
         return _cmd_demo(args)
+    if args.cmd == "metric-divergence":
+        return _cmd_metric_divergence(args)
     return _cmd_run(args, parser)
 
 
@@ -373,6 +388,29 @@ def _cmd_demo(args) -> int:
     app = create_app(analysis)
     print(f"[demo] serving the Phase-2 finding at http://{args.host}:{args.port}  (Ctrl-C to stop)")
     uvicorn.run(app, host=args.host, port=args.port, log_level="warning")
+    return 0
+
+
+def _cmd_metric_divergence(args) -> int:
+    from .eval.metric_divergence import (
+        evaluate_panel,
+        render_panel_markdown,
+        verdict,
+    )
+
+    try:
+        rows = evaluate_panel(args.variant, iterations=args.iterations)
+    except Exception as exc:  # pyspiel missing or version mismatch
+        print(f"[metric-divergence] needs OpenSpiel: pip install -e '.[openspiel]' ({exc})")
+        return 2
+
+    if args.format == "json":
+        import json
+        print(json.dumps([r.model_dump() for r in rows], indent=2))
+    else:
+        print(render_panel_markdown(rows))
+        print()
+        print(verdict(rows))
     return 0
 
 

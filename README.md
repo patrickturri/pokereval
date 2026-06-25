@@ -81,6 +81,24 @@ rate, whole-policy **exploitability** (the headline metric — chips/hand a
 best-responder extracts; 0 = Nash), an optional LLM-judge reasoning score, and
 parse-error rate.
 
+#### Why two metrics? Action-match vs. exploitability
+
+The most-cited LLM poker benchmark, [PokerBench](https://arxiv.org/abs/2501.08328)
+(AAAI 2025), scores **action-match** — did the model pick the solver's best
+action? PokerEval reports exploitability *too*, because the two disagree. A
+credential-free panel of solver-derived policies makes this concrete (no model,
+no API keys):
+
+```bash
+make metric-divergence    # action-match vs. exploitability across a policy panel
+```
+
+Sharpening the Nash policy toward its argmax drives action-match up (0.87 → 1.00)
+**while exploitability gets worse** (0.94 → 1.94) — the collapsed `nash_greedy`
+policy earns a *perfect* action-match score yet is twice as exploitable as the
+Nash mix. This is the Phase-2 RLVR finding reproduced from first principles, with
+zero training spend. Full write-up: [`docs/metric-divergence.md`](docs/metric-divergence.md).
+
 ### Synthetic data (Phase 2)
 
 Generate CFR/Nash-labeled spots tagged by failure mode (the spots where

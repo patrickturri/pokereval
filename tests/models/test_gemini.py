@@ -1,6 +1,8 @@
 """GeminiClient uses Google's OpenAI-compatible endpoint (construction only)."""
 import pytest
 
+pytest.importorskip("openai")  # GeminiClient builds on the OpenAI SDK (llm extra)
+
 from pokereval.models.client import GeminiClient, OpenAIClient
 
 

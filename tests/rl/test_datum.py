@@ -1,5 +1,7 @@
 import pytest
-import tinker
+
+tinker = pytest.importorskip("tinker")  # build_datum returns a tinker.Datum (rl extra)
+
 from pokereval.rl.datum import build_datum
 
 

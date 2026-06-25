@@ -14,8 +14,21 @@ openspiel = ["open_spiel"]
 llm = ["anthropic", "openai"]
 holdem = ["pokerkit"]
 dev = ["pytest>=8.0", "fastapi", "httpx"]
-rl = ["tinker>=0.22", "verifiers>=0.1", "wandb"]
+# numpy backs the importance-sampling Datum (rl/datum.py); it ships with the
+# RL stack rather than the base install so the credential-free eval path stays
+# dependency-light. verifiers/wandb are needed only for the *live* training run
+# (gated behind --live / --wandb) — see the `all` extra note below.
+rl = ["tinker>=0.22", "numpy", "verifiers>=0.1", "wandb"]
 demo = ["fastapi", "uvicorn"]
+# Everything needed to run the full offline test suite (`make test`) and the
+# self-play / RLVR smoke loops with NO API keys or Tinker account. Used by
+# `make install` so a fresh clone is reproducible in one command. It pulls the
+# offline RL deps (tinker SDK + numpy) directly rather than the whole `rl`
+# extra, deliberately omitting verifiers/wandb: those are only exercised by the
+# gated live path, their tests are importorskip-skipped offline, and verifiers
+# transitively requires `wget` (an sdist that fails to build on modern Python),
+# which would break `make install`. Install the full live stack with `.[rl]`.
+all = ["pokereval[openspiel,llm,holdem,dev,demo]", "tinker>=0.22", "numpy"]
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/pokereval"]

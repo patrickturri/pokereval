@@ -1,8 +1,10 @@
 .PHONY: install test test-fast leaderboard leaderboard-json synth rl-smoke rl-train selfplay-smoke selfplay-train demo demo-build clean
 
-# Editable install with all extras (OpenSpiel, model SDKs).
+# Editable install with all extras (OpenSpiel, model SDKs, RL stack, demo).
+# The `all` extra pulls in everything the offline test suite and smoke loops
+# need — no API keys or Tinker account required to run them.
 install:
-	python -m pip install -e .
+	python -m pip install -e ".[all]"
 
 # Full test suite (OpenSpiel-marked tests run only if pyspiel is installed).
 test:

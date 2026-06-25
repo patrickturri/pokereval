@@ -1,4 +1,7 @@
-import tinker
+import pytest
+
+pytest.importorskip("tinker")  # build_datum / datum.py construct tinker.Datum (rl extra)
+
 from pokereval.rl.backend import FakeBackend
 from pokereval.rl.sampler import MockSamplingClient
 from pokereval.rl.datum import build_datum

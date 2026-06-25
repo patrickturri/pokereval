@@ -8,6 +8,30 @@ A poker testbed for frontier-model research engineering.
 > oracle-free self-play harness, and a credential-free web demo that reproduces
 > the headline finding live.
 
+## Why poker?
+
+![Milestones in AI vs. human game-playing — from checkers and chess to Go and, in 2017, no-limit Texas Hold'em](docs/assets/list_games_AI_vs_human.avif)
+
+Most games AI has conquered — checkers, chess, Go — are games of *perfect*
+information: both players see the whole board. Poker is different. It is a game
+of **imperfect information** (hidden cards, bluffing, mixed strategies), and that
+is exactly what makes it a hard, real-world-shaped benchmark.
+
+In 2017, Carnegie Mellon's **Libratus** beat four of the world's top heads-up
+no-limit Hold'em professionals over 120,000 hands — the first AI to do so. Its
+creators, Tuomas Sandholm and Noam Brown, were explicit that poker was never the
+point: *"The techniques in Libratus do not use expert domain knowledge or human
+data not specific to poker… thus they apply to a host of imperfect-information
+games"* — business negotiation, cybersecurity, pricing, and more. Poker is the
+benchmark; reasoning under hidden information is the prize.
+
+PokerEval takes that same lens to **frontier LLMs**: can today's models reason in
+an imperfect-information game, and can RL make them *less* exploitable rather than
+just more confident? (See the headline finding below — the answer is instructive.)
+Background: ["How poker-playing AI Libratus is learning to negotiate better than
+any human"](https://qz.com/907896/how-poker-playing-ai-libratus-is-learning-to-negotiate-better-than-any-human),
+Quartz.
+
 ## Status
 
 ✅ **Phase 1** (environment + eval suite) — implemented and reproducible.
@@ -56,6 +80,24 @@ The leaderboard reports, per model: mean Nash-probability mass, exact-match
 rate, whole-policy **exploitability** (the headline metric — chips/hand a
 best-responder extracts; 0 = Nash), an optional LLM-judge reasoning score, and
 parse-error rate.
+
+#### Why two metrics? Action-match vs. exploitability
+
+The most-cited LLM poker benchmark, [PokerBench](https://arxiv.org/abs/2501.08328)
+(AAAI 2025), scores **action-match** — did the model pick the solver's best
+action? PokerEval reports exploitability *too*, because the two disagree. A
+credential-free panel of solver-derived policies makes this concrete (no model,
+no API keys):
+
+```bash
+make metric-divergence    # action-match vs. exploitability across a policy panel
+```
+
+Sharpening the Nash policy toward its argmax drives action-match up (0.87 → 1.00)
+**while exploitability gets worse** (0.94 → 1.94) — the collapsed `nash_greedy`
+policy earns a *perfect* action-match score yet is twice as exploitable as the
+Nash mix. This is the Phase-2 RLVR finding reproduced from first principles, with
+zero training spend. Full write-up: [`docs/metric-divergence.md`](docs/metric-divergence.md).
 
 ### Synthetic data (Phase 2)
 

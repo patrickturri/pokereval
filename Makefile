@@ -1,4 +1,4 @@
-.PHONY: install test test-fast leaderboard leaderboard-json synth rl-smoke rl-train selfplay-smoke selfplay-train demo demo-build clean
+.PHONY: install test test-fast leaderboard leaderboard-json metric-divergence synth rl-smoke rl-train selfplay-smoke selfplay-train demo demo-build clean
 
 # Editable install with all extras (OpenSpiel, model SDKs, RL stack, demo).
 # The `all` extra pulls in everything the offline test suite and smoke loops
@@ -35,6 +35,11 @@ VARIANT ?= leduc
 leaderboard-json:
 	python -m pokereval.cli run --variant $(VARIANT) --iterations $(ITERATIONS) \
 		--provider $(PROVIDER) $(MODEL_FLAG) --format json
+
+# Action-match vs. exploitability: a credential-free policy panel showing the two
+# metrics disagree (and move together the wrong way). No model, no API keys.
+metric-divergence:
+	python -m pokereval.cli metric-divergence --variant $(VARIANT) --iterations $(ITERATIONS)
 
 # Generate CFR/Nash-labeled synthetic spots (Phase 2 flywheel).
 # e.g. make synth VARIANT=leduc TAG=mixed OUT=data/leduc_mixed.jsonl

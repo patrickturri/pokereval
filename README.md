@@ -45,8 +45,11 @@ offline-tested, and **run live** (LoRA fine-tune of `Qwen/Qwen3.5-4B`).
 offline-validated (`src/pokereval/rl/selfplay/`, chips-at-showdown reward,
 frozen-snapshot opponent, deal-conditioned GRPO), plus a **credential-free web
 demo** (`make demo`) that recomputes the collapse live. The live self-play
-*training* run — the one expected to drive exploitability back down — is gated on
-Tinker funds, not on code.
+*training* run on an LLM is gated on Tinker funds — but the **self-play loop
+itself is now shown to work offline**: a tabular policy trained by the *same*
+loop drives Leduc exploitability from the uniform ~2.37 down to ~1.6, below the
+collapsed RLVR policy's 1.75 (`make selfplay-tabular`, no API keys).
+[`docs/phase3-selfplay-offline.md`](docs/phase3-selfplay-offline.md)
 
 > **Headline result — a reproducible negative finding.** Single-step RLVR against
 > a per-decision Nash oracle *raised* the model's per-decision agreement with the
@@ -155,11 +158,38 @@ test suite.
    Outcome: a reproducible mode-collapse / reward-misspecification finding (above).
 3. 🟡 **Self-play + demo** — the principled fix to Phase 2: episodic self-play
    (chips-at-showdown reward, no oracle) where mixing can emerge. The harness is
-   built and offline-validated; the live training run is gated on Tinker funds.
-   Ships now: a credential-free web demo (`make demo`) that reconstructs the
-   collapsed policy from the solver and reproduces its 1.75 exploitability live,
-   then shows — decision by decision — where committing to one action departs
-   from the mixed equilibrium.
+   built and offline-validated; the live *LLM* training run is gated on Tinker
+   funds. Ships now: (a) a **credential-free tabular self-play result** — the same
+   loop, run on a small tabular policy, drives Leduc exploitability **2.37 → ~1.6**
+   offline (below the collapsed RLVR policy's 1.75), confirming the formulation is
+   sound independent of the LLM substrate; and (b) a credential-free web demo
+   (`make demo`) that reconstructs the collapsed policy from the solver and
+   reproduces its 1.75 exploitability live, then shows — decision by decision —
+   where committing to one action departs from the mixed equilibrium.
+
+#### Self-play works offline (no API keys, no Tinker)
+
+The Phase-2 finding said the *fix* is self-play. Phase 3 proves the fix offline,
+on a tabular policy driven by the **identical** loop (chips-at-showdown reward,
+deal-conditioned GRPO, frozen-snapshot opponent), evaluated on the time-average
+policy (NFSP-style):
+
+```bash
+make selfplay-tabular        # ~30s, CPU, credential-free → before/after JSON
+```
+
+| Policy (Leduc, mixed-exploitability lens) | Exploitability vs CFR |
+|---|---|
+| Uniform random (self-play's starting point) | ~2.37 |
+| **Tabular self-play — time-average policy** | **~1.6** ⬇ |
+| Collapsed Phase-2 RLVR policy (for reference) | 1.75 |
+| Nash equilibrium | 0.0 |
+
+This is the **inverse** of the Phase-2 trajectory: optimizing each decision in
+isolation pushed exploitability *up* (1.05 → 1.75); rewarding whole-hand outcomes
+pulls it *down* (2.37 → ~1.6), because the policy can now represent — and is
+rewarded for — the mixing Leduc requires. The solver is consulted only at eval
+time. Full write-up: [`docs/phase3-selfplay-offline.md`](docs/phase3-selfplay-offline.md).
 
 ### Demo (Phase 3)
 

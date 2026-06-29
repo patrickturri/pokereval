@@ -81,6 +81,12 @@ rate, whole-policy **exploitability** (the headline metric — chips/hand a
 best-responder extracts; 0 = Nash), an optional LLM-judge reasoning score, and
 parse-error rate.
 
+Every one of those numbers rests on the CFR solver being correct. It is
+validated against Kuhn poker's **closed-form Nash equilibrium** (Kuhn, 1950):
+CFR reproduces the analytic strategy — the 3:1 bluff-to-value ratio, the 1/3
+indifference-calling frequency — to within ~0.001 at every information state.
+Write-up: [`docs/solver-validation.md`](docs/solver-validation.md).
+
 #### Why two metrics? Action-match vs. exploitability
 
 The most-cited LLM poker benchmark, [PokerBench](https://arxiv.org/abs/2501.08328)

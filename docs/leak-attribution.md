@@ -45,7 +45,7 @@ policy — the Nash argmax, i.e. always commit to the single most-likely equilib
 action — which is the deterministic mode that Phase-2 RLVR collapsed onto.
 
 ```
-Policy exploitability: 0.1667 (Nash floor 0.0005; gap +0.1661 chips/hand across 12 deviating nodes)
+Policy exploitability: 0.1667 (Nash floor 0.0005; gap +0.1661 chips/hand; 5 mixed decision nodes ranked)
 
 | Rank | Info state | Legal | Marginal leak ↓ | Policy → Nash |
 |---:|---|---:|---:|---|
@@ -57,6 +57,10 @@ Policy exploitability: 0.1667 (Nash floor 0.0005; gap +0.1661 chips/hand across 
 Repairing the top 3 nodes to Nash closes 77% of the exploitability gap; repairing
 all 12 deviating nodes recovers the Nash policy exactly (0.0005).
 ```
+
+(The ranking pass scores the genuinely-mixed nodes; a converged CFR average policy
+leaves negligible noise on the "pure" nodes, so those are skipped from the ranking
+but still repaired in the exact endpoint above.)
 
 (Info-state strings are OpenSpiel's: the leading digit is the private card —
 `0`=J, `1`=Q, `2`=K — followed by the betting history, `p`=pass/check,
@@ -84,12 +88,23 @@ finding, localized decision by decision.
 
 ## Leduc (`make leak-attribution`)
 
-The same command on Leduc (the default) attributes the collapsed policy's
-exploitability `<LEDUC_BASELINE>` chips/hand across its mixed decision nodes —
-the larger game where the Phase-2 RLVR result was recorded. The leak again
-concentrates on the genuinely mixed nodes (the demo's "mixedness" spots), and the
-cumulative curve again terminates exactly at the Nash floor once every deviating
-node is repaired. `<LEDUC_SUMMARY>`
+On Leduc (the default, the larger game where the Phase-2 RLVR result was
+recorded) the collapsed policy's exploitability is **1.9417** and the Nash floor
+is **0.9406** — the same two numbers the metric-divergence panel reports for
+`nash_greedy` and `nash_mixed` ([`docs/metric-divergence.md`](metric-divergence.md)),
+an independent cross-check that leak attribution is decomposing the right gap. The
+biggest single leaks are the round-1 mixed nodes (Nash splits roughly 0.32/0.68
+between calling and raising; the collapse commits 100% to the raise), each worth
+about **0.10 chips/hand**. Repairing the top 3 nodes closes **26%** of the gap;
+repairing every deviating node recovers the Nash floor exactly (0.9406). The leak
+is more diffuse than in Kuhn — a larger game spreads it over more decisions — but
+the shape is identical: the collapse bleeds chips precisely where the equilibrium
+wanted to mix.
+
+> Leduc's default run ranks the genuinely-mixed nodes (≈ a few hundred) with one
+> exact best-response solve each, so it is a heavier offline computation (a few
+> minutes) — in line with `make demo` / `make selfplay-smoke`. Use
+> `--top`/`VARIANT=kuhn` for a quick look.
 
 ## Reproduce
 

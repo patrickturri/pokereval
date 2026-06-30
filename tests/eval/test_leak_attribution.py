@@ -184,4 +184,4 @@ def test_cli_leak_attribution_nash_policy_is_clean(capsys):
     code = main(["leak-attribution", "--variant", "kuhn", "--iterations", "300",
                  "--policy", "nash"])
     assert code == 0
-    assert "0 deviating nodes" in capsys.readouterr().out
+    assert "0 mixed decision nodes" in capsys.readouterr().out

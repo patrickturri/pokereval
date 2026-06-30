@@ -105,7 +105,7 @@ class LeakReport(BaseModel):
     variant: str
     baseline_exploitability: float  # E(π) — the policy under attribution
     nash_exploitability: float      # E(Nash) — the floor full repair lands on
-    leaks: list[NodeLeak]           # deviating nodes, worst-first
+    leaks: list[NodeLeak]           # ranked mixed nodes, worst-first
     # (n_nodes_repaired, exploitability_after) repairing in ranked order; the
     # last point repairs every deviating node and equals nash_exploitability.
     cumulative: list[tuple[int, float]]
@@ -117,6 +117,7 @@ def attribute_leaks(
     nash: dict[str, dict] | None = None,
     iterations: int = 2000,
     atol: float = 1e-6,
+    min_mix: float = 0.01,
     cumulative: bool = True,
     cumulative_top: int | None = None,
 ) -> LeakReport:
@@ -134,7 +135,15 @@ def attribute_leaks(
     iterations:
         CFR iterations used only when ``nash`` is solved here.
     atol:
-        Absolute tolerance for "this node deviates from Nash".
+        Absolute tolerance for "this node deviates from Nash" — defines the set
+        whose full repair reconstitutes the Nash policy (the exact endpoint).
+    min_mix:
+        Minimum off-modal Nash mass (``1 − max_a nash(a)``) for a node to get its
+        own marginal best-response solve. A converged CFR average policy leaves
+        tiny noise on the "pure" nodes, so almost every node deviates by ``atol``;
+        those near-pure nodes have ~0 individual leak, and solving each is the
+        dominant cost. ``min_mix`` skips them from the *ranking* pass (they are
+        still repaired in the exact endpoint). Set 0 to rank every deviating node.
     cumulative:
         If True (default) compute the ranked cumulative-repair curve. Costs one
         extra best-response solve per recorded point.
@@ -161,8 +170,11 @@ def attribute_leaks(
     nash_expl = expl(nsh)
 
     dev = deviating_keys(pol, nsh, atol)
+    # Rank only the genuinely-mixed nodes; near-pure (CFR-noise) nodes have ~0
+    # individual leak and dominate the solve count on larger games.
+    mixed = [k for k in dev if (1.0 - max(nsh[k].values(), default=1.0)) >= min_mix]
     leaks: list[NodeLeak] = []
-    for k in dev:
+    for k in mixed:
         marginal = baseline - expl(repair(pol, nsh, [k]))
         # Legal-action count is the support union: a collapsed policy stores a
         # point mass (one entry), so the true arity comes from the Nash support.
@@ -179,21 +191,20 @@ def attribute_leaks(
     leaks = rank_leaks(leaks)
 
     cumulative_pts: list[tuple[int, float]] = []
-    if cumulative and leaks:
-        n = len(leaks)
-        # Record every prefix, or — when capped — the top ``cumulative_top``
-        # prefixes plus the full-repair endpoint (which always lands on the Nash
-        # floor). Capping bounds the best-response solves on large games while
-        # keeping the legible "top-k closes X%" curve and the exact endpoint.
-        if cumulative_top is None:
-            record = set(range(1, n + 1))
-        else:
-            record = set(range(1, min(cumulative_top, n) + 1)) | {n}
+    if cumulative and dev:
+        # Prefix points repair the top-ranked mixed nodes in order; capping bounds
+        # the best-response solves. The final point repairs the *entire* deviating
+        # set — that policy IS the Nash policy, so it lands exactly on the floor.
+        ranked = [leak.info_key for leak in leaks]
+        n_pref = len(ranked) if cumulative_top is None else min(cumulative_top, len(ranked))
         repaired: list[str] = []
-        for i, leak in enumerate(leaks, start=1):
-            repaired.append(leak.info_key)
-            if i in record:
-                cumulative_pts.append((i, expl(repair(pol, nsh, repaired))))
+        for i in range(1, n_pref + 1):
+            repaired = ranked[:i]
+            cumulative_pts.append((i, expl(repair(pol, nsh, repaired))))
+        # Exact endpoint over the full deviating set (one extra solve), unless the
+        # last prefix already covered everything.
+        if not cumulative_pts or cumulative_pts[-1][0] < len(dev):
+            cumulative_pts.append((len(dev), expl(repair(pol, nsh, dev))))
 
     return LeakReport(
         variant=var.value,
@@ -212,8 +223,8 @@ def render_markdown(report: LeakReport, top: int | None = 8) -> str:
     gap = report.baseline_exploitability - report.nash_exploitability
     lines = [
         f"**Policy exploitability:** {report.baseline_exploitability:.4f} "
-        f"(Nash floor {report.nash_exploitability:.4f}; gap {gap:+.4f} chips/hand "
-        f"across {len(report.leaks)} deviating nodes)",
+        f"(Nash floor {report.nash_exploitability:.4f}; gap {gap:+.4f} chips/hand; "
+        f"{len(report.leaks)} mixed decision nodes ranked)",
         "",
         "| Rank | Info state | Legal | Marginal leak ↓ | Policy → Nash |",
         "|---:|---|---:|---:|---|",

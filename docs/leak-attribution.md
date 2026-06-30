@@ -101,10 +101,10 @@ is more diffuse than in Kuhn — a larger game spreads it over more decisions �
 the shape is identical: the collapse bleeds chips precisely where the equilibrium
 wanted to mix.
 
-> Leduc's default run ranks the genuinely-mixed nodes (≈ a few hundred) with one
-> exact best-response solve each, so it is a heavier offline computation (a few
-> minutes) — in line with `make demo` / `make selfplay-smoke`. Use
-> `--top`/`VARIANT=kuhn` for a quick look.
+> Leduc mixes at ~582 of its decision nodes, and the default run scores each with
+> one exact best-response solve, so it is a heavier offline computation (several
+> minutes) — in line with `make demo` / `make selfplay-smoke`. Use `VARIANT=kuhn`
+> for the quick, fully-worked look above.
 
 ## Reproduce
 

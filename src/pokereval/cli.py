@@ -177,6 +177,23 @@ def main(argv: list[str] | None = None) -> int:
         help="Output format. 'json' emits the raw panel rows for archival.",
     )
 
+    la = sub.add_parser(
+        "leak-attribution",
+        help="Credential-free: attribute a policy's exploitability across its decisions.",
+    )
+    la.add_argument("--variant", choices=["kuhn", "leduc"], default="leduc")
+    la.add_argument("--iterations", type=int, default=2000)
+    la.add_argument(
+        "--policy",
+        choices=["collapsed", "sharpened", "nash"],
+        default="collapsed",
+        help="Policy to attribute: 'collapsed' (Nash argmax — the Phase-2 mode "
+        "collapse), 'sharpened' (Nash**(1/tau)), or 'nash' (sanity: zero leak).",
+    )
+    la.add_argument("--tau", type=float, default=0.1, help="Temperature for --policy sharpened.")
+    la.add_argument("--top", type=int, default=8, help="Worst-N nodes to show (markdown).")
+    la.add_argument("--format", choices=["markdown", "json"], default="markdown")
+
     demo = sub.add_parser(
         "demo", help="Serve the Phase-2 finding as a local web demo (offline, no keys)."
     )
@@ -196,6 +213,8 @@ def main(argv: list[str] | None = None) -> int:
         return _cmd_demo(args)
     if args.cmd == "metric-divergence":
         return _cmd_metric_divergence(args)
+    if args.cmd == "leak-attribution":
+        return _cmd_leak_attribution(args)
     return _cmd_run(args, parser)
 
 
@@ -411,6 +430,42 @@ def _cmd_metric_divergence(args) -> int:
         print(render_panel_markdown(rows))
         print()
         print(verdict(rows))
+    return 0
+
+
+def _cmd_leak_attribution(args) -> int:
+    from .eval.leak_attribution import attribute_leaks, render_markdown
+    from .eval.metric_divergence import (
+        _normalize_int_keys,
+        _point_mass,
+        argmax_by_key,
+        sharpened,
+    )
+
+    try:
+        from .solver.nash import nash_probs_by_key
+
+        nash = _normalize_int_keys(nash_probs_by_key(args.variant, args.iterations))
+    except Exception as exc:  # pyspiel missing or version mismatch
+        print(f"[leak-attribution] needs OpenSpiel: pip install -e '.[openspiel]' ({exc})")
+        return 2
+
+    if args.policy == "collapsed":
+        policy = _point_mass(argmax_by_key(nash))
+    elif args.policy == "sharpened":
+        policy = sharpened(nash, args.tau)
+    else:  # nash — sanity check: a Nash policy leaks nothing
+        policy = nash
+
+    report = attribute_leaks(
+        args.variant, policy, nash=nash, iterations=args.iterations,
+        cumulative_top=args.top,
+    )
+    if args.format == "json":
+        import json
+        print(json.dumps(report.model_dump(), indent=2))
+    else:
+        print(render_markdown(report, top=args.top))
     return 0
 
 

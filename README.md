@@ -105,6 +105,25 @@ policy earns a *perfect* action-match score yet is twice as exploitable as the
 Nash mix. This is the Phase-2 RLVR finding reproduced from first principles, with
 zero training spend. Full write-up: [`docs/metric-divergence.md`](docs/metric-divergence.md).
 
+#### Where does the leak come from? Exploitability attribution
+
+Exploitability is one aggregate number; it says a policy is exploitable, not
+*which decisions* leak. This attributes it across decision nodes by a
+counterfactual repair — replace one node with the Nash mix, remeasure
+exploitability, read off the drop (no model, no API keys):
+
+```bash
+make leak-attribution VARIANT=kuhn    # rank the leaking decisions of the collapsed policy
+```
+
+On Kuhn the collapsed (argmax) policy's exploitability **0.167** decomposes onto
+exactly the equilibrium mixes it threw away — the biggest leak is *folding the
+Queen to a bet* (Nash calls 1/3 of the time), then *never bluffing the Jack*.
+Repairing the top 3 nodes closes **77%** of the gap; repairing all of them
+recovers Nash exactly. This is the Phase-2 mode collapse localized decision by
+decision, tying back to the same 1/3-calling and 3:1 bluff frequencies the solver
+is validated against. Full write-up: [`docs/leak-attribution.md`](docs/leak-attribution.md).
+
 ### Synthetic data (Phase 2)
 
 Generate CFR/Nash-labeled spots tagged by failure mode (the spots where

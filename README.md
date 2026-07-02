@@ -50,8 +50,19 @@ demo** (`make demo`) that recomputes the collapse live. The live self-play
 *training* run on an LLM is gated on Tinker funds — but the **self-play loop
 itself is now shown to work offline**: a tabular policy trained by the *same*
 loop drives Leduc exploitability from the uniform ~2.37 down to ~1.6, below the
-collapsed RLVR policy's 1.75 (`make selfplay-tabular`, no API keys).
+collapsed RLVR policy's 1.75 (`make selfplay-tabular`, no API keys). The harness
+now records the full **exploitability-vs-CFR curve across opponent refreshes**
+(`eval_curve` in the `rl-selfplay` output), so one funded `--live` run answers the
+headline question — *does self-play drive exploitability down?* — end to end; and
+a credential-free before/after write-up ships via `python scripts/demo.py`.
 [`docs/phase3-selfplay-offline.md`](docs/phase3-selfplay-offline.md)
+
+🧰 **Supporting tooling** (all credential-free, offline) — continuous integration
+(GitHub Actions runs the full suite + smoke loops on every push/PR; badge above),
+an opt-in faster-converging **CFR+** Nash baseline
+([`docs/solver-cfr-plus.md`](docs/solver-cfr-plus.md)), and **exploitability leak
+attribution** that localizes *which* decisions a policy bleeds chips on
+([`docs/leak-attribution.md`](docs/leak-attribution.md)).
 
 > **Headline result — a reproducible negative finding.** Single-step RLVR against
 > a per-decision Nash oracle *raised* the model's per-decision agreement with the

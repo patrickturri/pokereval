@@ -13,10 +13,23 @@ from .rollout import play_group
 
 
 @dataclass
+class EvalPoint:
+    """A single periodic-eval sample: the 0-indexed step just completed and the
+    exploitability report of the learner's policy at that point."""
+    step: int
+    report: EvalReport
+
+
+@dataclass
 class SelfPlayResult:
     before: EvalReport | None = None
     after: EvalReport | None = None
     step_returns: list[float] = field(default_factory=list)
+    # Learner exploitability sampled every ``eval_every`` steps — the
+    # "exploitability vs CFR across refreshes" trajectory the design spec calls
+    # the defensible claim. Empty offline curve is expected when eval is
+    # unavailable (no OpenSpiel) or disabled (``eval_every <= 0``).
+    eval_curve: list[EvalPoint] = field(default_factory=list)
 
 
 def _maybe_eval(config: RLConfig, all_spots, eval_spots, sampler) -> EvalReport | None:
@@ -70,8 +83,20 @@ def selfplay_train(config: RLConfig, all_spots, eval_spots, backend, logger=None
         backend.train_step(data, config.learning_rate)
         mean_return = return_sum / n_returns if n_returns else 0.0
         result.step_returns.append(mean_return)
+
+        # Periodic exploitability eval of the freshly-updated learner (spec step 7).
+        report = None
+        if config.eval_every > 0 and (step + 1) % config.eval_every == 0:
+            report = _maybe_eval(config, all_spots, eval_spots, backend.sampler())
+            if report is not None:
+                result.eval_curve.append(EvalPoint(step=step, report=report))
+
         if logger:
-            logger({"step": step, "mean_return": mean_return, "n_data": len(data)})
+            entry = {"step": step, "mean_return": mean_return, "n_data": len(data)}
+            if report is not None:
+                entry["mixed_exploitability"] = report.mixed_exploitability
+                entry["exploitability"] = report.exploitability
+            logger(entry)
 
     result.after = _maybe_eval(config, all_spots, eval_spots, backend.sampler())
     return result

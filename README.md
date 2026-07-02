@@ -1,5 +1,7 @@
 # PokerEval
 
+[![CI](https://github.com/patrickturri/pokereval/actions/workflows/ci.yml/badge.svg)](https://github.com/patrickturri/pokereval/actions/workflows/ci.yml)
+
 A poker testbed for frontier-model research engineering.
 
 > End-to-end RL research pipeline that evaluates and improves LLM poker reasoning —

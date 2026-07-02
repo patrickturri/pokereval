@@ -32,6 +32,16 @@ PRESETS: dict[str, RLConfig] = {
                       opponent_refresh_every=1),
     "real": RLConfig(num_steps=60, batch_spots=16, group_size=8, eval_every=10,
                      deals_per_step=8, hands_per_deal=8, opponent_refresh_every=10),
+    # Credential-free TABULAR self-play (`rl-selfplay --tabular`). The policy
+    # actually learns offline, so these sizes target a real exploitability drop
+    # rather than a mechanics check. `tabular` is the headline run (~30s);
+    # `tabular_smoke` just exercises the loop fast.
+    "tabular_smoke": RLConfig(num_steps=200, deals_per_step=8, hands_per_deal=6,
+                              learning_rate=0.4, opponent_refresh_every=10,
+                              eval_samples=12, seed=0),
+    "tabular": RLConfig(num_steps=800, deals_per_step=16, hands_per_deal=10,
+                        learning_rate=0.3, opponent_refresh_every=10,
+                        eval_samples=32, seed=0),
 }
 
 

@@ -155,6 +155,12 @@ def main(argv: list[str] | None = None) -> int:
     sp.add_argument("--preset", choices=["smoke", "real"], default="smoke")
     sp.add_argument("--iterations", type=int, default=2000, help="CFR iterations for eval spots.")
     sp.add_argument("--live", action="store_true", help="Use the live Tinker backend.")
+    sp.add_argument(
+        "--tabular",
+        action="store_true",
+        help="Credential-free tabular self-play: a real offline learning result "
+        "(exploitability drops), no Tinker/mock. Ignores --live.",
+    )
     sp.add_argument("--base-model", default=None)
     sp.add_argument("--wandb", action="store_true")
     sp.add_argument("--steps", type=int, default=None)
@@ -331,7 +337,12 @@ def _cmd_rl_selfplay(args) -> int:
     from .rl.dataset import split_spots
     from .rl.selfplay.train import selfplay_train
 
-    cfg = get_preset(args.preset)
+    # The tabular path is a credential-free, genuinely-learning self-play loop;
+    # it picks tabular-tuned presets and never touches a backend.
+    preset_name = args.preset
+    if args.tabular:
+        preset_name = "tabular" if args.preset == "real" else "tabular_smoke"
+    cfg = get_preset(preset_name)
     overrides = {"variant": args.variant}
     if args.base_model:
         overrides["base_model"] = args.base_model
@@ -364,6 +375,21 @@ def _cmd_rl_selfplay(args) -> int:
         except Exception as e:  # noqa: BLE001
             print(f"[wandb disabled: {e}]")
 
+    if args.tabular:
+        from .rl.selfplay.tabular import tabular_selfplay_train
+
+        result = tabular_selfplay_train(cfg, all_spots, eval_spots, logger=logger)
+        payload = {
+            "preset": preset_name,
+            "variant": args.variant,
+            "mode": "tabular",
+            "step_returns": result.step_returns,
+            "before": dataclasses.asdict(result.before) if result.before else None,
+            "after": dataclasses.asdict(result.after) if result.after else None,
+        }
+        print(json.dumps(payload, indent=2))
+        return 0
+
     if args.live:
         if not _preflight_billing():
             print(
@@ -388,6 +414,9 @@ def _cmd_rl_selfplay(args) -> int:
         "step_returns": result.step_returns,
         "before": dataclasses.asdict(result.before) if result.before else None,
         "after": dataclasses.asdict(result.after) if result.after else None,
+        "eval_curve": [
+            {"step": p.step, **dataclasses.asdict(p.report)} for p in result.eval_curve
+        ],
     }
     print(json.dumps(payload, indent=2))
     return 0

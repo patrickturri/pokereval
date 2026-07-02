@@ -1,4 +1,4 @@
-.PHONY: install test test-fast leaderboard leaderboard-json metric-divergence leak-attribution synth rl-smoke rl-train selfplay-smoke selfplay-train demo demo-build clean
+.PHONY: install test test-fast leaderboard leaderboard-json metric-divergence leak-attribution synth rl-smoke rl-train selfplay-smoke selfplay-train selfplay-tabular selfplay-tabular-smoke demo demo-build clean
 
 # Editable install with all extras (OpenSpiel, model SDKs, RL stack, demo).
 # The `all` extra pulls in everything the offline test suite and smoke loops
@@ -72,6 +72,16 @@ selfplay-smoke:
 
 selfplay-train:
 	python -m pokereval.cli rl-selfplay --variant leduc --preset real --live --wandb
+
+# Credential-free TABULAR self-play — the loop made to actually learn offline.
+# The headline run (~30s) drives Leduc exploitability from the uniform ~2.37 down
+# toward ~1.6, below the collapsed RLVR policy's 1.75. No API keys, no Tinker.
+selfplay-tabular:
+	python -m pokereval.cli rl-selfplay --variant leduc --preset real --tabular --iterations 1000
+
+# Fast mechanics check of the tabular loop (a handful of steps).
+selfplay-tabular-smoke:
+	python -m pokereval.cli rl-selfplay --variant leduc --preset smoke --tabular --iterations 200
 
 # Phase 3 demo: serve the Phase-2 finding as a local web app (offline, no keys).
 # First run computes the CFR analysis and caches it; subsequent runs are instant.

@@ -1,4 +1,4 @@
-.PHONY: install test test-fast leaderboard leaderboard-json metric-divergence synth rl-smoke rl-train selfplay-smoke selfplay-train selfplay-tabular selfplay-tabular-smoke demo demo-build clean
+.PHONY: install test test-fast leaderboard leaderboard-json metric-divergence leak-attribution synth rl-smoke rl-train selfplay-smoke selfplay-train selfplay-tabular selfplay-tabular-smoke demo demo-build clean
 
 # Editable install with all extras (OpenSpiel, model SDKs, RL stack, demo).
 # The `all` extra pulls in everything the offline test suite and smoke loops
@@ -40,6 +40,14 @@ leaderboard-json:
 # metrics disagree (and move together the wrong way). No model, no API keys.
 metric-divergence:
 	python -m pokereval.cli metric-divergence --variant $(VARIANT) --iterations $(ITERATIONS)
+
+# Exploitability leak attribution: localize *which* decisions a policy bleeds
+# chips on. Defaults to the collapsed (Nash-argmax) policy — the Phase-2 mode
+# collapse — and ranks the leaking nodes. No model, no API keys.
+POLICY ?= collapsed
+leak-attribution:
+	python -m pokereval.cli leak-attribution --variant $(VARIANT) \
+		--iterations $(ITERATIONS) --policy $(POLICY)
 
 # Generate CFR/Nash-labeled synthetic spots (Phase 2 flywheel).
 # e.g. make synth VARIANT=leduc TAG=mixed OUT=data/leduc_mixed.jsonl

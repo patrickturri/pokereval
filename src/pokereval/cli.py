@@ -369,6 +369,9 @@ def _cmd_rl_selfplay(args) -> int:
         "step_returns": result.step_returns,
         "before": dataclasses.asdict(result.before) if result.before else None,
         "after": dataclasses.asdict(result.after) if result.after else None,
+        "eval_curve": [
+            {"step": p.step, **dataclasses.asdict(p.report)} for p in result.eval_curve
+        ],
     }
     print(json.dumps(payload, indent=2))
     return 0
